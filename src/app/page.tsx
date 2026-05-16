@@ -65,7 +65,11 @@ export default function Dashboard() {
         body: JSON.stringify({ keyword }),
       });
 
-      if (!res.ok) throw new Error("分析に失敗しました");
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        console.error("API Error Response:", errorData);
+        throw new Error(errorData.error || errorData.message || "分析に失敗しました");
+      }
 
       const data = await res.json();
       setResult(data);
