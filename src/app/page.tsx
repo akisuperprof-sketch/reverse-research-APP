@@ -79,8 +79,23 @@ export default function Dashboard() {
     }
   };
 
-  const loadFromHistory = (item: any) => {
-    handleSearch(item.keyword);
+  const loadFromHistory = async (item: any) => {
+    setIsLoading(true);
+    const toastId = toast.loading(`「${item.keyword}」の分析履歴を復元中...`);
+
+    try {
+      const res = await fetch(`/api/history/${item.id}`);
+      if (!res.ok) throw new Error("履歴の取得に失敗しました");
+
+      const data = await res.json();
+      setResult(data);
+      toast.success("履歴を復元しました", { id: toastId });
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message || "エラーが発生しました", { id: toastId });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
