@@ -7,29 +7,13 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export function SpecGenerator() {
-  const specMarkdown = `## アプリ概要: InstaTrack Lite
-フォロワーリストを貼るだけで差分を確認できるシンプルツール
+interface SpecGeneratorProps {
+  content?: string;
+}
 
-### 1. 目的
-ユーザーが自分のフォロワーリストから、誰がフォローを外したのかを迅速かつ安全（ログイン不要）に特定すること。
-
-### 2. 対象ユーザー
-- インスタのフォロワー増減が気になる個人
-- アプリ連携を怖がるセキュリティ意識の高い層
-
-### 3. 主要機能
-- 前回のフォロワーリスト（テキスト）の貼り付け
-- 今回のフォロワーリスト（テキスト）の貼り付け
-- 差分分析（フォロー外した人、新しくフォローしてくれた人の抽出）
-- 履歴のローカル保存（localStorage）
-
-### 4. UI要件
-- Bento GridスタイルのクリーンなUI
-- 2つの巨大なテキストエリア
-- 比較実行ボタン（1クリック）
-- 結果のリスト表示とコピー機能
-`;
+export function SpecGenerator({ content }: SpecGeneratorProps) {
+  const specMarkdown = content || `## アプリ概要: 分析中...
+分析を開始するとここに詳細な仕様書が生成されます。`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(specMarkdown);

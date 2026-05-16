@@ -34,7 +34,12 @@ const menuItems = [
   { icon: Settings, label: "設定" },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  history?: any[];
+  onLoadHistory?: (item: any) => void;
+}
+
+export function Sidebar({ history = [], onLoadHistory }: SidebarProps) {
   return (
     <aside className="w-64 border-r bg-card flex flex-col h-screen sticky top-0">
       <div className="p-6">
@@ -76,15 +81,19 @@ export function Sidebar() {
             保存済みプロジェクト
           </h3>
           <div className="space-y-1">
-            {["インスタ フォロー外し", "LINE ブロック確認", "PDF 変換ツール"].map((proj) => (
-              <button
-                key={proj}
-                className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors truncate"
-              >
-                <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />
-                {proj}
-              </button>
-            ))}
+            {history.length > 0 ? (
+              history.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => onLoadHistory?.(item)}
+                  className="w-full text-left px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-colors truncate"
+                >
+                  # {item.keyword}
+                </button>
+              ))
+            ) : (
+              <p className="text-[10px] text-muted-foreground px-3">分析履歴がありません</p>
+            )}
           </div>
         </div>
       </ScrollArea>

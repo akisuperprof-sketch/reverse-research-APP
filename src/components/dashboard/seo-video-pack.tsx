@@ -6,19 +6,27 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export function SeoVideoPackCard() {
-  const seoItems = [
-    { label: "SEOタイトル", value: "インスタでフォロー外した人を確認する方法｜ログイン不要の無料チェック" },
-    { label: "Meta Description", value: "インスタのフォロワーが減った？誰がフォローを外したか特定する最新の確認方法を解説。アプリ連携なしで安全に、無料でチェックできる神ツールも紹介。" },
-    { label: "H1タグ", value: "インスタでフォロー外した人を特定する方法【2024年最新版】" },
+interface SeoVideoPackCardProps {
+  seoData?: {
+    title: string;
+    description: string;
+    h1: string;
+  };
+  videoIdeas?: { title: string; type: string }[];
+}
+
+export function SeoVideoPackCard({ seoData, videoIdeas }: SeoVideoPackCardProps) {
+  const seoItems = seoData ? [
+    { label: "SEOタイトル", value: seoData.title },
+    { label: "Meta Description", value: seoData.description },
+    { label: "H1タグ", value: seoData.h1 },
+  ] : [
+    { label: "SEOタイトル", value: "分析すると生成されます" },
+    { label: "Meta Description", value: "分析すると生成されます" },
+    { label: "H1タグ", value: "分析すると生成されます" },
   ];
 
-  const videos = [
-    { title: "インスタのフォロー外しを確認できる神アプリ", type: "問題認知" },
-    { title: "フォロー外した人を一覧で見る方法", type: "解決策探し" },
-    { title: "フォロー解除確認アプリ5選", type: "比較" },
-    { title: "即効！フォロー外し検出アプリを使ってみた", type: "今すぐ使う" },
-  ];
+  const videos = videoIdeas || [];
 
   return (
     <Card className="bento-card col-span-full lg:col-span-1">

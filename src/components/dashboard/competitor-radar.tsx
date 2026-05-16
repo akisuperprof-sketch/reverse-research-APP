@@ -5,13 +5,21 @@ import { Radar, AlertTriangle, ShieldCheck, ExternalLink, Minus } from "lucide-r
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-const mockCompetitors = [
-  { name: "FollowerCheck", type: "Web", weakness: "広告が多い", strength: 80, ui: 40, pricing: "無料", winnable: "UI刷新と広告なしで勝てる" },
-  { name: "InstaPlus", type: "iOS/Android", weakness: "ログインが必要で怖い", strength: 92, ui: 85, pricing: "月額980円", winnable: "ログイン不要の安全性で勝てる" },
-  { name: "F-Analyzer", type: "Web", weakness: "日本語非対応", strength: 65, ui: 50, pricing: "無料", winnable: "完全日本語化で圧倒できる" },
-];
+interface CompetitorRadarProps {
+  insights?: { name: string; weakness: string; winnableReason: string }[];
+}
 
-export function CompetitorRadar() {
+export function CompetitorRadar({ insights }: CompetitorRadarProps) {
+  const displayCompetitors = insights?.map(ins => ({
+    name: ins.name,
+    type: "競合",
+    weakness: ins.weakness,
+    strength: 80,
+    winnable: ins.winnableReason,
+    pricing: "-"
+  })) || [
+    { name: "既存ツールA", type: "Web", weakness: "分析中...", strength: 50, winnable: "分析中...", pricing: "-" },
+  ];
   return (
     <Card className="bento-card col-span-full lg:col-span-1">
       <div className="flex items-center gap-2 mb-6">
@@ -20,7 +28,7 @@ export function CompetitorRadar() {
       </div>
 
       <div className="space-y-4">
-        {mockCompetitors.map((comp, i) => (
+        {displayCompetitors.map((comp, i) => (
           <div key={i} className="p-4 rounded-2xl bg-secondary/30 border border-transparent hover:border-red-200 transition-all">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">

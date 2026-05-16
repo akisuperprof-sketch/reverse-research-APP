@@ -17,6 +17,7 @@ export interface AppIdea {
 }
 
 export interface AnalysisResult {
+  id?: string;
   keyword: string;
   score: number;
   demandScore: number;
@@ -24,7 +25,22 @@ export interface AnalysisResult {
   urgencyScore: number;
   monetizationScore: number;
   developmentScore: number;
+  seoScore: number;
+  riskScore: number;
+  scalabilityScore: number;
+  competitionWeakness: string;
+  competitorInsights?: { name: string; weakness: string; winnableReason: string }[];
   relatedKeywords: Keyword[];
   intentStats: Record<string, number>;
   appIdeas: AppIdea[];
+  mvpSpec?: string;
+  seoPack?: {
+    title: string;
+    description: string;
+    h1: string;
+    videos: { title: string; type: string }[];
+  };
+  videoIdeas?: { title: string; type: string }[];
+  launchPlan?: { day: string; title: string; desc: string }[];
+  createdAt?: string;
 }

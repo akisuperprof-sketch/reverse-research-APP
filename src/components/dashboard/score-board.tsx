@@ -7,19 +7,27 @@ import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 
 interface ScoreBoardProps {
-  scores: {
-    total: number;
-    demand: number;
-    pain: number;
-    urgency: number;
-    monetization: number;
-    development: number;
-    seo: number;
-    risk: number;
-  };
+  score: number;
+  demand: number;
+  pain: number;
+  urgency: number;
+  monetization: number;
+  development: number;
+  seo?: number;
+  risk?: number;
 }
 
-export function ScoreBoard({ scores }: ScoreBoardProps) {
+export function ScoreBoard({ 
+  score, 
+  demand, 
+  pain, 
+  urgency, 
+  monetization, 
+  development,
+  seo = 0,
+  risk = 0
+}: ScoreBoardProps) {
+  const scores = { total: score, demand, pain, urgency, monetization, development, seo, risk };
   const getJudgment = (score: number) => {
     if (score >= 90) return { label: "即MVP作成", color: "text-green-600", bg: "bg-green-100" };
     if (score >= 75) return { label: "小さく検証", color: "text-blue-600", bg: "bg-blue-100" };
