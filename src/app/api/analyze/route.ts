@@ -166,6 +166,11 @@ export async function POST(req: Request) {
           seo_data: safeData.seoPack,
           video_ideas: safeData.videoIdeas
         }]),
+        supabaseAdmin.from("analysis_logs").insert([{
+          query_id: queryId,
+          event_type: "ANALYSIS_COMPLETED",
+          message: `Keyword: ${keyword} analyzed successfully.`
+        }])
       ]);
     }
 
@@ -177,6 +182,14 @@ export async function POST(req: Request) {
 
   } catch (error: any) {
     console.error("Analysis Error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ 
+      error: "分析中にエラーが発生しました", 
+      message: error.message,
+      debug: {
+        hasGeminiKey: Boolean(process.env.GEMINI_API_KEY),
+        hasSupabaseUrl: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
+        hasServiceRole: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
+      }
+    }, { status: 500 });
   }
 }
