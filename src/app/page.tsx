@@ -10,6 +10,7 @@ import { AppIdeaBoard } from "@/components/dashboard/app-idea-board";
 import { SuggestStreamCard } from "@/components/dashboard/suggest-stream";
 import { SearchChainCard } from "@/components/dashboard/search-chain";
 import { EmotionDeepInsightCard } from "@/components/dashboard/emotion-insight";
+import { AIBootSequence } from "@/components/dashboard/boot-sequence";
 import { AnalysisResult } from "@/types";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase/client";
@@ -204,7 +205,8 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <SystemStatusSidebar />
+      <AIBootSequence isLoading={isLoading} keyword={previousKeyword || "新規解析"} />
+      <SystemStatusSidebar result={result} />
     </div>
   );
 }
