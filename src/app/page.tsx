@@ -2,17 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
-import { Header } from "@/components/layout/header";
+import { SystemStatusSidebar } from "@/components/layout/system-status";
 import { KeywordInputCard } from "@/components/dashboard/keyword-input";
 import { SuggestKeywordCard } from "@/components/dashboard/related-keywords";
-import { IntentStageMap } from "@/components/dashboard/intent-map";
 import { ScoreBoard } from "@/components/dashboard/score-board";
 import { AppIdeaBoard } from "@/components/dashboard/app-idea-board";
-import { CompetitorRadar } from "@/components/dashboard/competitor-radar";
-import { SpecGenerator } from "@/components/dashboard/spec-generator";
-import { SeoVideoPackCard } from "@/components/dashboard/seo-video-pack";
-import { RevenueSimulationCard } from "@/components/dashboard/revenue-simulation";
-import { LaunchPlanCard } from "@/components/dashboard/launch-plan";
 import { SuggestStreamCard } from "@/components/dashboard/suggest-stream";
 import { SearchChainCard } from "@/components/dashboard/search-chain";
 import { EmotionDeepInsightCard } from "@/components/dashboard/emotion-insight";
@@ -48,13 +42,11 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResult>(mockInitialResult);
   const [history, setHistory] = useState<any[]>([]);
-  // Tracking session to link intent chains
   const [sessionId] = useState(() => Math.random().toString(36).substring(2, 15));
   const [previousKeyword, setPreviousKeyword] = useState<string | null>(null);
 
-  // 履歴の取得
   const fetchHistory = async () => {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("search_queries")
       .select("*")
       .order("created_at", { ascending: false })
@@ -103,7 +95,6 @@ export default function Dashboard() {
     const toastId = toast.loading(`「${keyword}」を分析中...`);
 
     try {
-      // Run analysis and suggest collector in parallel
       const [resAnalyze, resSuggest] = await Promise.all([
         fetch("/api/analyze", {
           method: "POST",
@@ -114,7 +105,7 @@ export default function Dashboard() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ keyword, sessionId, previousKeyword }),
-        }).catch(() => null) // Ignore suggest errors, it's an additive feature
+        }).catch(() => null)
       ]);
 
       if (!resAnalyze.ok) {
@@ -128,7 +119,6 @@ export default function Dashboard() {
       if (resSuggest && resSuggest.ok) {
         dataSuggest = await resSuggest.json();
         
-        // Update query ID in suggest tables asynchronously
         if (dataAnalyze.id && dataSuggest.suggestions?.length > 0) {
           fetch("/api/suggest/link", {
              method: "POST",
@@ -141,7 +131,7 @@ export default function Dashboard() {
       setResult(mapApiData(dataAnalyze, keyword, dataSuggest));
       setPreviousKeyword(keyword);
       toast.success("分析が完了し、Supabaseに保存されました", { id: toastId });
-      fetchHistory(); // 履歴を更新
+      fetchHistory();
     } catch (error: any) {
       console.error(error);
       toast.error(error.message || "エラーが発生しました", { id: toastId });
@@ -155,20 +145,18 @@ export default function Dashboard() {
     const toastId = toast.loading(`「${item.keyword}」の分析履歴を復元中...`);
 
     try {
-      // 履歴から取得する際にSuggestも取得する
       const [resHistory, resSuggestsDb] = await Promise.all([
         fetch(`/api/history/${item.id}`),
-        supabase.from("suggest_keywords").select("*, emotion_scores(*)").eq("query_id", item.id)
+        supabase.from("suggest_keywords").select("*, emotion_scores(*)").eq("query_id", item.id).catch(() => ({ data: null }))
       ]);
       
       if (!resHistory.ok) throw new Error("履歴の取得に失敗しました");
 
       const data = await resHistory.json();
       
-      // format suggests from DB
       let suggestions = [];
-      if (resSuggestsDb.data) {
-         suggestions = resSuggestsDb.data.map(s => ({
+      if (resSuggestsDb && resSuggestsDb.data) {
+         suggestions = resSuggestsDb.data.map((s: any) => ({
             suggestText: s.suggest_text,
             emotion: s.emotion_scores?.[0]?.emotion_category || "調査",
             painScore: s.emotion_scores?.[0]?.pain_score || 50,
@@ -188,54 +176,35 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#F9FAFB]">
+    <div className="flex h-screen w-screen overflow-hidden bg-[#F8FAFC] font-sans">
       <Sidebar history={history} onLoadHistory={loadFromHistory} />
-      <div className="flex-1 flex flex-col min-w-0">
-        <Header />
-        <main className="flex-1 p-6 lg:p-10 overflow-auto">
-          <div className="max-w-7xl mx-auto space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <KeywordInputCard onSearch={handleSearch} isLoading={isLoading} />
+      
+      <div className="flex-1 flex flex-col min-w-0 p-4 gap-4 h-full overflow-hidden">
+        <KeywordInputCard onSearch={handleSearch} isLoading={isLoading} />
+        <ScoreBoard score={result.score} pain={result.painScore} />
+        
+        <div className="flex-1 min-h-0 grid grid-cols-3 gap-4">
+          <div className="col-span-1 flex flex-col gap-4 min-h-0 h-full">
+            <div className="h-1/2 min-h-0">
+              <EmotionDeepInsightCard data={result} />
+            </div>
+            <div className="h-1/2 min-h-0">
               <SuggestKeywordCard keywords={result.relatedKeywords} />
-              <IntentStageMap stats={result.intentStats} />
             </div>
-            
-            <SearchChainCard sessionId={sessionId} />
-            <EmotionDeepInsightCard data={result} />
-
-            {/* Suggest Stream Card Additive Feature */}
-            <div className="grid grid-cols-1 gap-6">
-              <SuggestStreamCard suggestions={result.suggestions} />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <ScoreBoard
-                score={result.score}
-                demand={result.demandScore}
-                pain={result.painScore}
-                urgency={result.urgencyScore}
-                monetization={result.monetizationScore}
-                development={result.developmentScore}
-              />
-              <AppIdeaBoard ideas={result.appIdeas} />
-              <CompetitorRadar insights={result.competitorInsights} />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <SpecGenerator content={result.mvpSpec} />
-              <div className="space-y-6">
-                <SeoVideoPackCard 
-                  seoData={result.seoPack} 
-                  videoIdeas={result.videoIdeas} 
-                />
-                <RevenueSimulationCard />
-              </div>
-            </div>
-
-            <LaunchPlanCard steps={result.launchPlan} />
           </div>
-        </main>
+
+          <div className="col-span-1 flex flex-col gap-4 min-h-0 h-full">
+            <SearchChainCard sessionId={sessionId} />
+          </div>
+
+          <div className="col-span-1 flex flex-col gap-4 min-h-0 h-full">
+            <AppIdeaBoard ideas={result.appIdeas} />
+            <SuggestStreamCard suggestions={result.suggestions} />
+          </div>
+        </div>
       </div>
+
+      <SystemStatusSidebar />
     </div>
   );
 }

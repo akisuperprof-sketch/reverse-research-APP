@@ -1,6 +1,6 @@
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Brain, HeartPulse, Flame, Search, AlertCircle, Lightbulb } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { HeartPulse, Flame, Search, AlertCircle, Lightbulb, TrendingUp } from "lucide-react";
 import { AnalysisResult } from "@/types";
 import { Progress } from "@/components/ui/progress";
 
@@ -9,100 +9,83 @@ interface EmotionDeepInsightCardProps {
 }
 
 export function EmotionDeepInsightCard({ data }: EmotionDeepInsightCardProps) {
-  // Hide if no data yet (e.g. before search)
   if (!data.emotionReason || data.emotionReason === "検索してください") {
-    return null;
+    return (
+      <Card className="col-span-full shadow-sm border-slate-200 bg-white p-4 h-full flex items-center justify-center">
+        <p className="text-sm text-slate-400">分析を実行すると深い感情データが表示されます。</p>
+      </Card>
+    );
   }
 
   return (
-    <Card className="col-span-full shadow-sm border-gray-200 bg-white/50 backdrop-blur-sm overflow-hidden">
-      <CardHeader className="pb-3 border-b border-gray-100 bg-gradient-to-r from-ai-purple/5 to-transparent">
-        <CardTitle className="flex items-center gap-2 text-lg text-gray-900">
-          <Brain className="w-5 h-5 text-ai-purple" />
-          Deep Emotion Insight
-        </CardTitle>
-        <CardDescription>検索キーワードの背後にある「人間の深い感情と緊急性」の解析結果</CardDescription>
-      </CardHeader>
+    <Card className="col-span-full shadow-sm border-slate-200 bg-white p-4 h-full flex flex-col">
+      <div className="flex items-center gap-2 mb-4">
+        <HeartPulse className="w-4 h-4 text-rose-500" />
+        <h2 className="font-bold text-sm text-slate-800">深い感情インサイト</h2>
+      </div>
       
-      <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
         
-        {/* Core Emotion & Pain */}
-        <div className="space-y-4">
-          <div className="bg-red-50/50 rounded-xl p-4 border border-red-100">
-            <div className="flex items-center gap-2 mb-2 text-red-700 font-semibold text-sm">
-              <HeartPulse className="w-4 h-4" />
-              根本感情とその理由 (Emotion)
+        {/* Core Emotion (Red/Orange) */}
+        <div className="flex flex-col gap-3">
+          <div className="bg-red-50 rounded-lg p-3 border border-red-100 flex-1">
+            <div className="flex items-center gap-1.5 mb-1.5 text-red-700 font-bold text-xs">
+              <AlertCircle className="w-3 h-3" />
+              根本感情 (危険・怒り)
             </div>
-            <p className="text-sm text-gray-700 leading-relaxed">
+            <p className="text-xs text-red-900/80 leading-relaxed line-clamp-3">
               {data.emotionReason}
             </p>
           </div>
           
-          <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-            <div className="flex items-center gap-2 mb-2 text-gray-700 font-semibold text-sm">
-              <AlertCircle className="w-4 h-4" />
-              なぜ深い悩みなのか (Pain)
+          <div className="bg-orange-50 rounded-lg p-3 border border-orange-100 flex-1">
+            <div className="flex items-center gap-1.5 mb-1.5 text-orange-700 font-bold text-xs">
+              <Flame className="w-3 h-3" />
+              なぜ深い悩みなのか (不安・焦り)
             </div>
-            <p className="text-sm text-gray-600 leading-relaxed">
+            <p className="text-xs text-orange-900/80 leading-relaxed line-clamp-3">
               {data.painReason}
             </p>
           </div>
         </div>
 
-        {/* Urgency & Purchase Intent */}
-        <div className="space-y-6 flex flex-col justify-center">
-          <div className="space-y-2">
-            <div className="flex justify-between items-center text-sm">
-              <div className="flex items-center gap-2 font-medium text-orange-600">
-                <Flame className="w-4 h-4" />
-                緊急性 (Urgency)
+        {/* Purchase & Future (Green/Blue) */}
+        <div className="flex flex-col gap-3">
+          <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-100 flex-1 flex flex-col justify-center gap-2">
+            <div className="flex justify-between items-center text-xs">
+              <div className="flex items-center gap-1.5 font-bold text-emerald-700">
+                <TrendingUp className="w-3 h-3" />
+                購入直前度
               </div>
-              <span className="font-bold text-gray-900">{data.urgencyLevel} / 100</span>
+              <span className="font-bold text-emerald-900">{data.purchaseIntent}/100</span>
             </div>
-            <Progress value={data.urgencyLevel} className="h-2 bg-orange-100" />
-            <p className="text-xs text-gray-500 text-right">スコアが高いほど今すぐ解決したい課題</p>
+            <Progress value={data.purchaseIntent} className="h-1.5 bg-emerald-200" />
+            
+            <div className="flex justify-between items-center text-xs mt-2">
+              <div className="flex items-center gap-1.5 font-bold text-amber-700">
+                <Lightbulb className="w-3 h-3" />
+                緊急性
+              </div>
+              <span className="font-bold text-amber-900">{data.urgencyLevel}/100</span>
+            </div>
+            <Progress value={data.urgencyLevel} className="h-1.5 bg-amber-200" />
           </div>
 
-          <div className="space-y-2">
-            <div className="flex justify-between items-center text-sm">
-              <div className="flex items-center gap-2 font-medium text-emerald-600">
-                <Lightbulb className="w-4 h-4" />
-                購入直前感 (Purchase Intent)
-              </div>
-              <span className="font-bold text-gray-900">{data.purchaseIntent} / 100</span>
+          <div className="bg-blue-50 rounded-lg p-3 border border-blue-100 flex-1 flex flex-col">
+            <div className="flex items-center gap-1.5 mb-2 text-blue-700 font-bold text-xs">
+              <Search className="w-3 h-3" />
+              次検索予測 (比較・絶望)
             </div>
-            <Progress value={data.purchaseIntent} className="h-2 bg-emerald-100" />
-            <p className="text-xs text-gray-500 text-right">スコアが高いほどお金を払う確率が高い</p>
-          </div>
-        </div>
-
-        {/* Future Searches & Opportunity */}
-        <div className="space-y-4">
-          <div className="bg-blue-50/50 rounded-xl p-4 border border-blue-100 h-full flex flex-col">
-            <div className="flex items-center gap-2 mb-3 text-blue-700 font-semibold text-sm">
-              <Search className="w-4 h-4" />
-              次に検索しそうな言葉 (Future Search)
-            </div>
-            <div className="flex flex-wrap gap-2 mb-4">
+            <div className="flex flex-wrap gap-1.5">
               {data.futureSearches && data.futureSearches.map((kw, idx) => (
-                <span key={idx} className="px-2.5 py-1 bg-white text-blue-800 text-xs font-medium rounded-md border border-blue-200">
+                <span key={idx} className="px-2 py-0.5 bg-white text-blue-800 text-[10px] font-bold rounded-md border border-blue-200">
                   {kw}
                 </span>
               ))}
             </div>
-            <div className="mt-auto pt-3 border-t border-blue-100 flex gap-3">
-              <img src="/rever-var-4.png" alt="Rever Tip" className="w-12 h-12 object-contain" />
-              <div>
-                <div className="text-xs font-bold text-blue-800 mb-1">リバが教える：ここを狙えば勝てるアプリ。</div>
-                <p className="text-xs text-blue-900/80 leading-relaxed font-medium">
-                  {data.opportunityReason}
-                </p>
-              </div>
-            </div>
           </div>
         </div>
-
-      </CardContent>
+      </div>
     </Card>
   );
 }

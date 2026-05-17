@@ -1,6 +1,8 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Link2, ArrowRight } from "lucide-react";
+import { GitMerge, ArrowDown } from "lucide-react";
+import { Card } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase/client";
 
 interface SearchChainCardProps {
@@ -8,56 +10,66 @@ interface SearchChainCardProps {
 }
 
 export function SearchChainCard({ sessionId }: SearchChainCardProps) {
-  const [chains, setChains] = useState<{ parent_keyword: string | null; child_keyword: string }[]>([]);
+  const [chains, setChains] = useState<any[]>([]);
 
   useEffect(() => {
+    if (!sessionId) return;
     const fetchChains = async () => {
-      if (!sessionId) return;
       const { data } = await supabase
         .from("intent_chains")
-        .select("parent_keyword, child_keyword")
+        .select("*")
         .eq("session_id", sessionId)
         .order("created_at", { ascending: true });
-        
+      
       if (data) setChains(data);
     };
-    
     fetchChains();
+
+    const channel = supabase
+      .channel(`intent_chains_${sessionId}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "intent_chains", filter: `session_id=eq.${sessionId}` },
+        (payload) => {
+          setChains((prev) => [...prev, payload.new]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [sessionId]);
 
-  if (!chains || chains.length <= 1) {
-    return null; // Don't show if there's no chain yet
-  }
+  const mockChains = [
+    { current_keyword: "インスタ フォロー外した人" },
+    { current_keyword: "フォロー外した人 アプリ" },
+    { current_keyword: "バレずに確認" }
+  ];
 
-  // Deduplicate and flatten the chain
-  const keywords = [];
-  if (chains[0].parent_keyword) keywords.push(chains[0].parent_keyword);
-  chains.forEach(c => keywords.push(c.child_keyword));
-  const uniqueChain = Array.from(new Set(keywords));
+  const displayChains = chains.length > 0 ? chains : mockChains;
 
   return (
-    <Card className="col-span-full shadow-sm border-gray-200 bg-white/50 backdrop-blur-sm">
-      <CardHeader className="pb-3 border-b border-gray-100">
-        <CardTitle className="flex items-center gap-2 text-lg text-gray-900">
-          <Link2 className="w-5 h-5 text-ai-purple" />
-          Intent Chain Graph
-        </CardTitle>
-        <CardDescription>現在のセッションでの検索連鎖（コンテキスト遷移）</CardDescription>
-      </CardHeader>
-      <CardContent className="pt-4">
-        <div className="flex flex-wrap items-center gap-2">
-          {uniqueChain.map((keyword, idx) => (
-            <React.Fragment key={idx}>
-              <div className="px-3 py-1.5 bg-ai-purple/10 text-ai-purple text-sm font-medium rounded-full border border-ai-purple/20">
-                {keyword}
+    <Card className="shadow-sm border-slate-200 bg-white p-4 h-full flex flex-col overflow-hidden relative group">
+      <div className="flex items-center gap-2 mb-4">
+        <GitMerge className="w-4 h-4 text-indigo-500" />
+        <h2 className="font-bold text-sm text-slate-800">検索連鎖 (Intent Chain)</h2>
+      </div>
+
+      <div className="flex-1 overflow-y-auto pr-2 relative">
+        {displayChains.map((chain, i) => (
+          <div key={i} className="flex flex-col items-center">
+            <div className="w-full bg-slate-50 border border-slate-100 rounded-lg p-2.5 text-center transition-colors hover:bg-indigo-50 hover:border-indigo-100 cursor-default">
+              <span className="text-xs font-bold text-slate-700">{chain.current_keyword}</span>
+            </div>
+            {i < displayChains.length - 1 && (
+              <div className="py-1">
+                <ArrowDown className="w-3 h-3 text-slate-300" />
               </div>
-              {idx < uniqueChain.length - 1 && (
-                <ArrowRight className="w-4 h-4 text-gray-400" />
-              )}
-            </React.Fragment>
-          ))}
-        </div>
-      </CardContent>
+            )}
+          </div>
+        ))}
+      </div>
     </Card>
   );
 }
