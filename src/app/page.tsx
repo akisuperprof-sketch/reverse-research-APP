@@ -54,6 +54,30 @@ export default function Dashboard() {
     fetchHistory();
   }, []);
 
+  const mapApiData = (data: any, keyword: string): AnalysisResult => {
+    return {
+      keyword: data.keyword || keyword,
+      score: data.scores?.total || 50,
+      demandScore: data.scores?.demand || 50,
+      painScore: data.scores?.pain || 50,
+      urgencyScore: data.scores?.urgency || 50,
+      monetizationScore: data.scores?.monetization || 50,
+      developmentScore: data.scores?.development || 50,
+      seoScore: data.scores?.seo || 50,
+      riskScore: data.scores?.risk || 50,
+      scalabilityScore: data.scores?.scalability || 50,
+      competitionWeakness: data.searchGapSummary || "調査中",
+      relatedKeywords: data.relatedKeywords || [],
+      intentStats: data.intentStages || data.intent_stages || { "未認知": 0, "問題認知": 0, "解決策探し": 0, "選択肢比較": 0, "今すぐ買う": 0 },
+      appIdeas: data.appIdeas || data.generated_apps || [],
+      competitorInsights: data.competitorInsights || [],
+      mvpSpec: data.mvpSpec || data.generated_specs?.[0]?.content || "",
+      seoPack: data.seoPack || data.seo_video_packs?.[0]?.seo_data || { title: "", description: "", h1: "" },
+      videoIdeas: data.videoIdeas || data.seo_video_packs?.[0]?.video_ideas || [],
+      launchPlan: data.launchPlan || []
+    };
+  };
+
   const handleSearch = async (keyword: string) => {
     setIsLoading(true);
     const toastId = toast.loading(`「${keyword}」を分析中...`);
@@ -72,7 +96,7 @@ export default function Dashboard() {
       }
 
       const data = await res.json();
-      setResult(data);
+      setResult(mapApiData(data, keyword));
       toast.success("分析が完了し、Supabaseに保存されました", { id: toastId });
       fetchHistory(); // 履歴を更新
     } catch (error: any) {
@@ -92,7 +116,7 @@ export default function Dashboard() {
       if (!res.ok) throw new Error("履歴の取得に失敗しました");
 
       const data = await res.json();
-      setResult(data);
+      setResult(mapApiData(data, item.keyword));
       toast.success("履歴を復元しました", { id: toastId });
     } catch (error: any) {
       console.error(error);
