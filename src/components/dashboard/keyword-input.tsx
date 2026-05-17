@@ -24,9 +24,12 @@ export function KeywordInputCard({ onSearch, isLoading }: KeywordInputCardProps)
   };
 
   return (
-    <Card className="bento-card col-span-full lg:col-span-1 border-primary/10 bg-gradient-to-br from-white to-primary/5">
-      <div className="flex items-center gap-2 mb-4">
-        <Sparkles className="w-5 h-5 text-primary fill-current" />
+    <Card className="bento-card col-span-full lg:col-span-1 border-primary/10 bg-gradient-to-br from-white to-primary/5 relative overflow-hidden">
+      <div className="absolute top-[-20px] right-[-20px] opacity-10 pointer-events-none">
+        <img src="/rever-var-2.png" alt="Rever" className="w-48 h-48 object-contain" />
+      </div>
+      <div className="flex items-center gap-2 mb-4 relative z-10">
+        <img src="/rever-icon.png" alt="Rever Icon" className="w-6 h-6 rounded-md shadow-sm border border-gray-200" />
         <h2 className="font-bold text-lg">キーワード分析</h2>
       </div>
       

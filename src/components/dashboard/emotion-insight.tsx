@@ -90,11 +90,14 @@ export function EmotionDeepInsightCard({ data }: EmotionDeepInsightCardProps) {
                 </span>
               ))}
             </div>
-            <div className="mt-auto pt-3 border-t border-blue-100">
-              <div className="text-xs font-semibold text-blue-800 mb-1">MVP化のチャンス理由</div>
-              <p className="text-xs text-blue-900/80 leading-relaxed">
-                {data.opportunityReason}
-              </p>
+            <div className="mt-auto pt-3 border-t border-blue-100 flex gap-3">
+              <img src="/rever-var-4.png" alt="Rever Tip" className="w-12 h-12 object-contain" />
+              <div>
+                <div className="text-xs font-bold text-blue-800 mb-1">リバが教える：ここを狙えば勝てるアプリ。</div>
+                <p className="text-xs text-blue-900/80 leading-relaxed font-medium">
+                  {data.opportunityReason}
+                </p>
+              </div>
             </div>
           </div>
         </div>
