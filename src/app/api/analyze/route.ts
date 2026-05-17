@@ -69,12 +69,12 @@ const SYSTEM_PROMPT = `
 
 function generateMockData(keyword: string) {
   return {
-    relatedKeywords: [{ text: \`\${keyword} ツール\`, intent: "解決策探し", demand: "中", difficulty: "中" }],
+    relatedKeywords: [{ text: `${keyword} ツール`, intent: "解決策探し", demand: "中", difficulty: "中" }],
     intentStages: { "未認知": 20, "問題認知": 20, "解決策探し": 20, "選択肢比較": 20, "今すぐ買う": 20 },
     scores: { total: 50, demand: 50, pain: 50, urgency: 50, monetization: 50, development: 50, seo: 50, risk: 50, scalability: 50 },
     appIdeas: [
       {
-        name: \`\${keyword} サポートツール\`,
+        name: `${keyword} サポートツール`,
         description: "AIの分析が失敗したため、モックデータを表示しています。",
         targetUser: "検索ユーザー",
         features: ["基本機能1", "基本機能2"],
@@ -85,9 +85,9 @@ function generateMockData(keyword: string) {
       }
     ],
     competitorInsights: [{ name: "既存ツール", weakness: "特になし", winnableReason: "特になし" }],
-    mvpSpec: \`## \${keyword} のMVP仕様書\\nAIの分析が失敗したためモックを表示しています。\`,
-    seoPack: { title: \`\${keyword}のおすすめツール\`, description: "モックディスクリプション", h1: \`\${keyword}について\` },
-    videoIdeas: [{ title: \`\${keyword}の解決法\`, type: "Shorts" }],
+    mvpSpec: `## ${keyword} のMVP仕様書\nAIの分析が失敗したためモックを表示しています。`,
+    seoPack: { title: `${keyword}のおすすめツール`, description: "モックディスクリプション", h1: `${keyword}について` },
+    videoIdeas: [{ title: `${keyword}の解決法`, type: "Shorts" }],
     launchPlan: [{ day: "Day 1", title: "設計", desc: "設計開始" }],
     oneFeatureRecommendation: "検索機能",
     searchGapSummary: "AIが応答しませんでした。"
@@ -114,7 +114,7 @@ export async function POST(req: Request) {
     }
 
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-    const prompt = \`\${SYSTEM_PROMPT}\\n\\n分析対象キーワード: \${keyword}\`;
+    const prompt = `${SYSTEM_PROMPT}\n\n分析対象キーワード: ${keyword}`;
 
     let analysisData;
     let geminiStatus = "success";
@@ -127,9 +127,9 @@ export async function POST(req: Request) {
 
       const text = response.text || "";
       // Markdownのコードブロックを削除してJSONのみを抽出する
-      const jsonText = text.replace(/\`\`\`(json)?/g, "").replace(/\`\`\`/g, "").trim();
+      const jsonText = text.replace(/```(json)?/g, "").replace(/```/g, "").trim();
       
-      const jsonMatch = jsonText.match(/\\{[\\s\\S]*\\}/);
+      const jsonMatch = jsonText.match(/\{[\s\S]*\}/);
       if (!jsonMatch) throw new Error("Valid JSON not found in response");
       
       analysisData = JSON.parse(jsonMatch[0]);
@@ -156,7 +156,7 @@ export async function POST(req: Request) {
       },
       appIdeas: (Array.isArray(analysisData.appIdeas) ? analysisData.appIdeas : []).slice(0, 5),
       competitorInsights: Array.isArray(analysisData.competitorInsights) ? analysisData.competitorInsights : [],
-      mvpSpec: analysisData.mvpSpec || \`## \${keyword} のMVP仕様書\\n仕様書が生成されませんでした。\`,
+      mvpSpec: analysisData.mvpSpec || `## ${keyword} のMVP仕様書\n仕様書が生成されませんでした。`,
       seoPack: analysisData.seoPack || { title: "", description: "", h1: "" },
       videoIdeas: analysisData.videoIdeas || [],
       launchPlan: analysisData.launchPlan || [],
@@ -207,7 +207,7 @@ export async function POST(req: Request) {
         supabaseAdmin.from("analysis_logs").insert([{
           query_id: queryId,
           event_type: "ANALYSIS_COMPLETED",
-          message: \`Keyword: \${keyword} analyzed. Gemini: \${geminiStatus}\`
+          message: `Keyword: ${keyword} analyzed. Gemini Status: ${geminiStatus}`
         }])
       ]);
     } catch (dbError: any) {
@@ -215,9 +215,8 @@ export async function POST(req: Request) {
       supabaseStatus = "error";
     }
 
-    console.log(\`Analysis Finished. Gemini: \${geminiStatus}, Supabase: \${supabaseStatus}\`);
+    console.log(`Analysis Finished. Gemini: ${geminiStatus}, Supabase: ${supabaseStatus}`);
 
-    // クライアントへ返すデータ
     return NextResponse.json({
       ...safeData,
       id: queryId,
