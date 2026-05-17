@@ -13,6 +13,8 @@ import { SpecGenerator } from "@/components/dashboard/spec-generator";
 import { SeoVideoPackCard } from "@/components/dashboard/seo-video-pack";
 import { RevenueSimulationCard } from "@/components/dashboard/revenue-simulation";
 import { LaunchPlanCard } from "@/components/dashboard/launch-plan";
+import { SuggestStreamCard } from "@/components/dashboard/suggest-stream";
+import { SearchChainCard } from "@/components/dashboard/search-chain";
 import { AnalysisResult } from "@/types";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase/client";
@@ -31,13 +33,17 @@ const mockInitialResult: AnalysisResult = {
   competitionWeakness: "-",
   relatedKeywords: [],
   intentStats: { "未認知": 0, "問題認知": 0, "解決策探し": 0, "選択肢比較": 0, "今すぐ買う": 0 },
-  appIdeas: []
+  appIdeas: [],
+  suggestions: []
 };
 
 export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResult>(mockInitialResult);
   const [history, setHistory] = useState<any[]>([]);
+  // Tracking session to link intent chains
+  const [sessionId] = useState(() => Math.random().toString(36).substring(2, 15));
+  const [previousKeyword, setPreviousKeyword] = useState<string | null>(null);
 
   // 履歴の取得
   const fetchHistory = async () => {
@@ -54,7 +60,7 @@ export default function Dashboard() {
     fetchHistory();
   }, []);
 
-  const mapApiData = (data: any, keyword: string): AnalysisResult => {
+  const mapApiData = (data: any, keyword: string, suggestionsData?: any): AnalysisResult => {
     return {
       keyword: data.keyword || keyword,
       score: data.scores?.total || 50,
@@ -74,7 +80,8 @@ export default function Dashboard() {
       mvpSpec: data.mvpSpec || data.generated_specs?.[0]?.content || "",
       seoPack: data.seoPack || data.seo_video_packs?.[0]?.seo_data || { title: "", description: "", h1: "" },
       videoIdeas: data.videoIdeas || data.seo_video_packs?.[0]?.video_ideas || [],
-      launchPlan: data.launchPlan || []
+      launchPlan: data.launchPlan || [],
+      suggestions: suggestionsData?.suggestions || []
     };
   };
 
@@ -83,20 +90,43 @@ export default function Dashboard() {
     const toastId = toast.loading(`「${keyword}」を分析中...`);
 
     try {
-      const res = await fetch("/api/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ keyword }),
-      });
+      // Run analysis and suggest collector in parallel
+      const [resAnalyze, resSuggest] = await Promise.all([
+        fetch("/api/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ keyword }),
+        }),
+        fetch("/api/suggest", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ keyword, sessionId, previousKeyword }),
+        }).catch(() => null) // Ignore suggest errors, it's an additive feature
+      ]);
 
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        console.error("API Error Response:", errorData);
+      if (!resAnalyze.ok) {
+        const errorData = await resAnalyze.json().catch(() => ({}));
         throw new Error(errorData.error || errorData.message || "分析に失敗しました");
       }
 
-      const data = await res.json();
-      setResult(mapApiData(data, keyword));
+      const dataAnalyze = await resAnalyze.json();
+      let dataSuggest = { suggestions: [] };
+      
+      if (resSuggest && resSuggest.ok) {
+        dataSuggest = await resSuggest.json();
+        
+        // Update query ID in suggest tables asynchronously
+        if (dataAnalyze.id && dataSuggest.suggestions?.length > 0) {
+          fetch("/api/suggest/link", {
+             method: "POST",
+             headers: { "Content-Type": "application/json" },
+             body: JSON.stringify({ keyword, queryId: dataAnalyze.id, suggestions: dataSuggest.suggestions })
+          }).catch(() => {});
+        }
+      }
+
+      setResult(mapApiData(dataAnalyze, keyword, dataSuggest));
+      setPreviousKeyword(keyword);
       toast.success("分析が完了し、Supabaseに保存されました", { id: toastId });
       fetchHistory(); // 履歴を更新
     } catch (error: any) {
@@ -112,11 +142,29 @@ export default function Dashboard() {
     const toastId = toast.loading(`「${item.keyword}」の分析履歴を復元中...`);
 
     try {
-      const res = await fetch(`/api/history/${item.id}`);
-      if (!res.ok) throw new Error("履歴の取得に失敗しました");
+      // 履歴から取得する際にSuggestも取得する
+      const [resHistory, resSuggestsDb] = await Promise.all([
+        fetch(`/api/history/${item.id}`),
+        supabase.from("suggest_keywords").select("*, emotion_scores(*)").eq("query_id", item.id)
+      ]);
+      
+      if (!resHistory.ok) throw new Error("履歴の取得に失敗しました");
 
-      const data = await res.json();
-      setResult(mapApiData(data, item.keyword));
+      const data = await resHistory.json();
+      
+      // format suggests from DB
+      let suggestions = [];
+      if (resSuggestsDb.data) {
+         suggestions = resSuggestsDb.data.map(s => ({
+            suggestText: s.suggest_text,
+            emotion: s.emotion_scores?.[0]?.emotion_category || "調査",
+            painScore: s.emotion_scores?.[0]?.pain_score || 50,
+            opportunityScore: s.emotion_scores?.[0]?.opportunity_score || 50
+         }));
+      }
+
+      setResult(mapApiData(data, item.keyword, { suggestions }));
+      setPreviousKeyword(item.keyword);
       toast.success("履歴を復元しました", { id: toastId });
     } catch (error: any) {
       console.error(error);
@@ -137,6 +185,13 @@ export default function Dashboard() {
               <KeywordInputCard onSearch={handleSearch} isLoading={isLoading} />
               <SuggestKeywordCard keywords={result.relatedKeywords} />
               <IntentStageMap stats={result.intentStats} />
+            </div>
+            
+            <SearchChainCard sessionId={sessionId} />
+
+            {/* Suggest Stream Card Additive Feature */}
+            <div className="grid grid-cols-1 gap-6">
+              <SuggestStreamCard suggestions={result.suggestions} />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

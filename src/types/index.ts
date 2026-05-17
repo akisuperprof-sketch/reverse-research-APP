@@ -43,4 +43,12 @@ export interface AnalysisResult {
   videoIdeas?: { title: string; type: string }[];
   launchPlan?: { day: string; title: string; desc: string }[];
   createdAt?: string;
+  // Suggest Collector Additions
+  suggestions?: {
+    suggestText: string;
+    emotion: string;
+    painScore: number;
+    opportunityScore: number;
+  }[];
+  sessionId?: string;
 }
