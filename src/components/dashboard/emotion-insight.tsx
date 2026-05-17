@@ -108,23 +108,48 @@ export function EmotionDeepInsightCard({ data }: EmotionDeepInsightCardProps) {
             <Progress value={data.urgencyLevel} className="h-1.5 bg-amber-200" />
           </div>
 
-          <div className="bg-blue-50 rounded-lg p-3 border border-blue-100 flex-1 flex flex-col">
-            <div className="flex items-center gap-1.5 mb-2 text-blue-700 font-bold text-xs">
+          <div className="bg-blue-50/50 rounded-lg p-3 border border-blue-100 flex-1 flex flex-col relative overflow-hidden">
+            <div className="flex items-center gap-1.5 mb-2 text-blue-700 font-bold text-xs relative z-10">
               <Search className="w-3 h-3" />
-              次検索予測 (Future Search)
+              Trend Prediction (未来予測)
             </div>
-            <div className="flex flex-wrap gap-1.5">
-              {data.futureSearches && data.futureSearches.map((kw, idx) => (
-                <motion.span 
-                  key={idx} 
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: idx * 0.1 }}
-                  className="px-2 py-0.5 bg-white text-blue-800 text-[10px] font-bold rounded-md border border-blue-200 shadow-sm"
-                >
-                  {kw}
-                </motion.span>
-              ))}
+            
+            <div className="flex flex-col gap-2 relative z-10">
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  { text: "3日後急増予測", color: "bg-red-500 text-white" },
+                  { text: "TikTok流入増", color: "bg-black text-white" },
+                  { text: "女性流入予測", color: "bg-pink-500 text-white" },
+                  { text: "検索増殖率 180%", color: "bg-blue-500 text-white" },
+                ].map((badge, idx) => (
+                  <motion.span 
+                    key={idx}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.1 }}
+                    className={`px-2 py-0.5 text-[9px] font-bold rounded shadow-sm ${badge.color}`}
+                  >
+                    {badge.text}
+                  </motion.span>
+                ))}
+              </div>
+
+              <div className="w-full h-px bg-blue-100 my-1" />
+
+              <div className="flex flex-wrap gap-1.5">
+                <span className="text-[9px] text-blue-600 font-bold w-full">次検索予測ネットワーク:</span>
+                {data.futureSearches && data.futureSearches.map((kw, idx) => (
+                  <motion.span 
+                    key={idx} 
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: idx * 0.1 + 0.4 }}
+                    className="px-1.5 py-0.5 bg-white text-blue-800 text-[9px] font-bold rounded-md border border-blue-200 shadow-sm"
+                  >
+                    {kw}
+                  </motion.span>
+                ))}
+              </div>
             </div>
           </div>
         </div>
