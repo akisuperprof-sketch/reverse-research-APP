@@ -1,13 +1,6 @@
 import type { Metadata } from "next";
-import { Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
-
-const notoSansJP = Noto_Sans_JP({
-  variable: "--font-noto-sans-jp",
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
-});
 
 export const metadata: Metadata = {
   title: "IntentOS | 検索意図から売れるマイクロアプリを量産するAI OS",
@@ -20,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja" className={`${notoSansJP.variable} h-full antialiased`}>
+    <html lang="ja" className="h-full antialiased">
       <body className="min-h-full font-sans bg-[#F9FAFB] text-[#111827]">
         {children}
         <Toaster />

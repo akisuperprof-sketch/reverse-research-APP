@@ -169,7 +169,7 @@ export async function POST(req: Request) {
     }
 
     // Supabaseに保存
-    let queryId;
+    let queryId: string | undefined;
     let supabaseStatus = "success";
     try {
       const { data: queryData, error: queryError } = await supabaseAdmin
