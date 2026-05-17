@@ -9,6 +9,7 @@ import { ScoreBoard } from "@/components/dashboard/score-board";
 import { AppIdeaBoard } from "@/components/dashboard/app-idea-board";
 import { SuggestStreamCard } from "@/components/dashboard/suggest-stream";
 import { SearchChainCard } from "@/components/dashboard/search-chain";
+import { ClusterEngineCard } from "@/components/dashboard/cluster-engine";
 import { EmotionDeepInsightCard } from "@/components/dashboard/emotion-insight";
 import { AIBootSequence } from "@/components/dashboard/boot-sequence";
 import { LiveTicker } from "@/components/layout/live-ticker";
@@ -197,7 +198,12 @@ export default function Dashboard() {
           </div>
 
           <div className="col-span-1 flex flex-col gap-4 min-h-0 h-full">
-            <SearchChainCard sessionId={sessionId} />
+            <div className="h-1/2 min-h-0">
+              <SearchChainCard sessionId={sessionId} />
+            </div>
+            <div className="h-1/2 min-h-0">
+              <ClusterEngineCard />
+            </div>
           </div>
 
           <div className="col-span-1 flex flex-col gap-4 min-h-0 h-full">

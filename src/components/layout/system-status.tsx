@@ -66,6 +66,8 @@ export function SystemStatusSidebar({ result }: SystemStatusSidebarProps) {
         "【Auto Insight】恋愛・孤独カテゴリのPainが急上昇しています。今見るべき市場です。",
         "女性ユーザーの深夜流入が増加傾向にあります。明日のトレンドを予測中...",
         "即時解決を求める『Painスコア90以上』が自動検知されました。",
+        "【Cluster Alert】「副業焦り」クラスタが急増。マネタイズ機会（Opportunity）が極めて高い状態です。",
+        "現在最も危険な感情クラスタ「孤独・健康恐怖」を監視ネットワークに追加しました。",
       ];
       
       if (result && result.keyword !== "未検索") {
