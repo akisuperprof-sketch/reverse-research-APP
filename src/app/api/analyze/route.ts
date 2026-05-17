@@ -3,11 +3,11 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
 
 const SYSTEM_PROMPT = `
-あなたは、検索意図から売れるマイクロアプリを量産する「IntentOS」のチーフAI分析官です。
-ユーザーが入力したキーワードを多角的に分析し、以下のJSONフォーマットで回答してください。
+あなたは、検索意図から売れるマイクロアプリを量産する「IntentOS」のチーフAI分析官であり、人間の深層心理を読み解く天才プロファイラーです。
+ユーザーが入力したキーワードの表面的な意味ではなく、その背後にある「不安・焦り・怒り・孤独・比較心理・購入直前感」などの生々しい感情と悩みを多角的に分析し、以下のJSONフォーマットで回答してください。
 
 ## 分析の目的
-「思いつきでアプリを作る」のではなく、検索需要の隙間（Search Gap）を見つけ、最小機能（One Feature）で解決するアプリ案を提示すること。
+「表面的な検索意図」ではなく「人間の感情・悩み・緊急性」まで深く解析すること。そして、その深いPain（悩み）を最小機能（One Feature）で解決するアプリ案を提示すること。
 
 ## 出力フォーマット (JSON)
 {
@@ -43,6 +43,12 @@ const SYSTEM_PROMPT = `
   "competitorInsights": [
     { "name": "競合名", "weakness": "弱点", "winnableReason": "勝てる理由" }
   ],
+  "emotionReason": "ユーザーがなぜこの検索に至ったか、背後にある不安や焦り、怒りなどの根本感情とその理由",
+  "urgencyLevel": 50,
+  "purchaseIntent": 50,
+  "futureSearches": ["数日後に検索しそうなキーワード1", "キーワード2", "キーワード3"],
+  "painReason": "なぜこれが深い悩み（ペイン）なのかの理由",
+  "opportunityReason": "なぜこれがビジネス・MVP化のチャンスになるのかの理由",
   "mvpSpec": "## MVP仕様書のMarkdown",
   "seoPack": {
     "title": "SEOタイトル",
@@ -85,6 +91,12 @@ function generateMockData(keyword: string) {
       }
     ],
     competitorInsights: [{ name: "既存ツール", weakness: "特になし", winnableReason: "特になし" }],
+    emotionReason: "AIの分析が失敗したため、感情の理由は不明です。",
+    urgencyLevel: 50,
+    purchaseIntent: 50,
+    futureSearches: ["モックデータ1", "モックデータ2"],
+    painReason: "ペインの理由は解析できませんでした。",
+    opportunityReason: "チャンスの理由は解析できませんでした。",
     mvpSpec: `## ${keyword} のMVP仕様書\nAIの分析が失敗したためモックを表示しています。`,
     seoPack: { title: `${keyword}のおすすめツール`, description: "モックディスクリプション", h1: `${keyword}について` },
     videoIdeas: [{ title: `${keyword}の解決法`, type: "Shorts" }],
@@ -118,6 +130,7 @@ export async function POST(req: Request) {
 
     let analysisData;
     let geminiStatus = "success";
+    let geminiErrorMsg = "";
 
     try {
       const response = await ai.models.generateContent({
@@ -136,6 +149,7 @@ export async function POST(req: Request) {
     } catch (e: any) {
       console.error("Gemini API or Parse Error:", e.message);
       geminiStatus = "error";
+      geminiErrorMsg = e.message;
       analysisData = generateMockData(keyword);
     }
 
@@ -156,6 +170,12 @@ export async function POST(req: Request) {
       },
       appIdeas: (Array.isArray(analysisData.appIdeas) ? analysisData.appIdeas : []).slice(0, 5),
       competitorInsights: Array.isArray(analysisData.competitorInsights) ? analysisData.competitorInsights : [],
+      emotionReason: analysisData.emotionReason || "未解析",
+      urgencyLevel: Math.min(100, Math.max(0, analysisData.urgencyLevel || 50)),
+      purchaseIntent: Math.min(100, Math.max(0, analysisData.purchaseIntent || 50)),
+      futureSearches: Array.isArray(analysisData.futureSearches) ? analysisData.futureSearches : [],
+      painReason: analysisData.painReason || "未解析",
+      opportunityReason: analysisData.opportunityReason || "未解析",
       mvpSpec: analysisData.mvpSpec || `## ${keyword} のMVP仕様書\n仕様書が生成されませんでした。`,
       seoPack: analysisData.seoPack || { title: "", description: "", h1: "" },
       videoIdeas: analysisData.videoIdeas || [],
@@ -180,7 +200,15 @@ export async function POST(req: Request) {
           intent_stages: safeData.intentStages,
           scores: safeData.scores,
           search_gap_summary: safeData.searchGapSummary,
-          one_feature_recommendation: safeData.oneFeatureRecommendation
+          one_feature_recommendation: safeData.oneFeatureRecommendation,
+          emotion_data: {
+            emotionReason: safeData.emotionReason,
+            urgencyLevel: safeData.urgencyLevel,
+            purchaseIntent: safeData.purchaseIntent,
+            futureSearches: safeData.futureSearches,
+            painReason: safeData.painReason,
+            opportunityReason: safeData.opportunityReason
+          }
         }])
         .select()
         .single();
@@ -223,7 +251,8 @@ export async function POST(req: Request) {
       keyword,
       _debug: {
         geminiStatus,
-        supabaseStatus
+        supabaseStatus,
+        geminiErrorMsg
       }
     });
 

@@ -15,6 +15,7 @@ import { RevenueSimulationCard } from "@/components/dashboard/revenue-simulation
 import { LaunchPlanCard } from "@/components/dashboard/launch-plan";
 import { SuggestStreamCard } from "@/components/dashboard/suggest-stream";
 import { SearchChainCard } from "@/components/dashboard/search-chain";
+import { EmotionDeepInsightCard } from "@/components/dashboard/emotion-insight";
 import { AnalysisResult } from "@/types";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase/client";
@@ -34,7 +35,13 @@ const mockInitialResult: AnalysisResult = {
   relatedKeywords: [],
   intentStats: { "未認知": 0, "問題認知": 0, "解決策探し": 0, "選択肢比較": 0, "今すぐ買う": 0 },
   appIdeas: [],
-  suggestions: []
+  suggestions: [],
+  emotionReason: "検索してください",
+  urgencyLevel: 0,
+  purchaseIntent: 0,
+  futureSearches: [],
+  painReason: "検索してください",
+  opportunityReason: "検索してください"
 };
 
 export default function Dashboard() {
@@ -77,6 +84,12 @@ export default function Dashboard() {
       intentStats: data.intentStages || data.intent_stages || { "未認知": 0, "問題認知": 0, "解決策探し": 0, "選択肢比較": 0, "今すぐ買う": 0 },
       appIdeas: data.appIdeas || data.generated_apps || [],
       competitorInsights: data.competitorInsights || [],
+      emotionReason: data.emotionReason || data.raw_json?.emotionReason || "",
+      urgencyLevel: data.urgencyLevel || data.raw_json?.urgencyLevel || 50,
+      purchaseIntent: data.purchaseIntent || data.raw_json?.purchaseIntent || 50,
+      futureSearches: data.futureSearches || data.raw_json?.futureSearches || [],
+      painReason: data.painReason || data.raw_json?.painReason || "",
+      opportunityReason: data.opportunityReason || data.raw_json?.opportunityReason || "",
       mvpSpec: data.mvpSpec || data.generated_specs?.[0]?.content || "",
       seoPack: data.seoPack || data.seo_video_packs?.[0]?.seo_data || { title: "", description: "", h1: "" },
       videoIdeas: data.videoIdeas || data.seo_video_packs?.[0]?.video_ideas || [],
@@ -188,6 +201,7 @@ export default function Dashboard() {
             </div>
             
             <SearchChainCard sessionId={sessionId} />
+            <EmotionDeepInsightCard data={result} />
 
             {/* Suggest Stream Card Additive Feature */}
             <div className="grid grid-cols-1 gap-6">

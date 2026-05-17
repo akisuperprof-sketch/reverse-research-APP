@@ -34,6 +34,14 @@ export interface AnalysisResult {
   intentStats: Record<string, number>;
   appIdeas: AppIdea[];
   mvpSpec?: string;
+  // Deep Emotion & Psychology Additions
+  emotionReason?: string;
+  urgencyLevel?: number;
+  purchaseIntent?: number;
+  futureSearches?: string[];
+  painReason?: string;
+  opportunityReason?: string;
+  
   seoPack?: {
     title: string;
     description: string;
