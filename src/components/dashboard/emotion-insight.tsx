@@ -1,8 +1,9 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
-import { HeartPulse, Flame, Search, AlertCircle, Lightbulb, TrendingUp } from "lucide-react";
+import { HeartPulse, Flame, Search, AlertCircle, Lightbulb, TrendingUp, Grid3X3 } from "lucide-react";
 import { AnalysisResult } from "@/types";
 import { Progress } from "@/components/ui/progress";
+import { motion } from "framer-motion";
 
 interface EmotionDeepInsightCardProps {
   data: AnalysisResult;
@@ -17,39 +18,75 @@ export function EmotionDeepInsightCard({ data }: EmotionDeepInsightCardProps) {
     );
   }
 
+  // Intent Heatmap Generator (Mock data based on scores to show density)
+  const generateHeatmapGrid = () => {
+    const grid = [];
+    for (let i = 0; i < 35; i++) {
+      const intensity = Math.random();
+      let colorClass = "bg-slate-100";
+      
+      if (data.painScore > 70) {
+        if (intensity > 0.8) colorClass = "bg-red-500";
+        else if (intensity > 0.5) colorClass = "bg-red-400";
+        else if (intensity > 0.2) colorClass = "bg-red-200";
+      } else if (data.urgencyLevel > 70) {
+        if (intensity > 0.8) colorClass = "bg-amber-500";
+        else if (intensity > 0.5) colorClass = "bg-amber-400";
+        else if (intensity > 0.2) colorClass = "bg-amber-200";
+      } else {
+        if (intensity > 0.8) colorClass = "bg-blue-500";
+        else if (intensity > 0.5) colorClass = "bg-blue-400";
+        else if (intensity > 0.2) colorClass = "bg-blue-200";
+      }
+      
+      grid.push(
+        <motion.div
+          key={i}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: i * 0.02 }}
+          className={`w-full h-full rounded-sm ${colorClass}`}
+        />
+      );
+    }
+    return grid;
+  };
+
   return (
-    <Card className="col-span-full shadow-sm border-slate-200 bg-white p-4 h-full flex flex-col">
-      <div className="flex items-center gap-2 mb-4">
-        <HeartPulse className="w-4 h-4 text-rose-500" />
-        <h2 className="font-bold text-sm text-slate-800">深い感情インサイト</h2>
+    <Card className="col-span-full shadow-sm border-slate-200 bg-white p-4 h-full flex flex-col overflow-hidden relative">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <HeartPulse className="w-4 h-4 text-rose-500" />
+          <h2 className="font-bold text-sm text-slate-800">深い感情インサイト</h2>
+        </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 overflow-y-auto pr-1 hide-scrollbar">
         
-        {/* Core Emotion (Red/Orange) */}
+        {/* Core Emotion & Intent Heatmap */}
         <div className="flex flex-col gap-3">
-          <div className="bg-red-50 rounded-lg p-3 border border-red-100 flex-1">
-            <div className="flex items-center gap-1.5 mb-1.5 text-red-700 font-bold text-xs">
+          <div className="bg-red-50 rounded-lg p-3 border border-red-100 flex-1 relative overflow-hidden">
+            <div className="flex items-center gap-1.5 mb-1.5 text-red-700 font-bold text-xs relative z-10">
               <AlertCircle className="w-3 h-3" />
               根本感情 (危険・怒り)
             </div>
-            <p className="text-xs text-red-900/80 leading-relaxed line-clamp-3">
+            <p className="text-xs text-red-900/80 leading-relaxed line-clamp-2 relative z-10">
               {data.emotionReason}
             </p>
           </div>
           
-          <div className="bg-orange-50 rounded-lg p-3 border border-orange-100 flex-1">
-            <div className="flex items-center gap-1.5 mb-1.5 text-orange-700 font-bold text-xs">
-              <Flame className="w-3 h-3" />
-              なぜ深い悩みなのか (不安・焦り)
+          <div className="bg-slate-900 rounded-lg p-3 border border-slate-800 flex flex-col gap-2 relative">
+            <div className="flex items-center justify-between text-slate-300 font-bold text-[10px] uppercase tracking-wider">
+              <span className="flex items-center gap-1.5"><Grid3X3 className="w-3 h-3 text-indigo-400" /> Intent Heatmap</span>
+              <span>Density</span>
             </div>
-            <p className="text-xs text-orange-900/80 leading-relaxed line-clamp-3">
-              {data.painReason}
-            </p>
+            <div className="grid grid-cols-7 gap-1 h-12">
+              {generateHeatmapGrid()}
+            </div>
           </div>
         </div>
 
-        {/* Purchase & Future (Green/Blue) */}
+        {/* Purchase & Future Prediction */}
         <div className="flex flex-col gap-3">
           <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-100 flex-1 flex flex-col justify-center gap-2">
             <div className="flex justify-between items-center text-xs">
@@ -61,7 +98,7 @@ export function EmotionDeepInsightCard({ data }: EmotionDeepInsightCardProps) {
             </div>
             <Progress value={data.purchaseIntent} className="h-1.5 bg-emerald-200" />
             
-            <div className="flex justify-between items-center text-xs mt-2">
+            <div className="flex justify-between items-center text-xs mt-1">
               <div className="flex items-center gap-1.5 font-bold text-amber-700">
                 <Lightbulb className="w-3 h-3" />
                 緊急性
@@ -74,13 +111,19 @@ export function EmotionDeepInsightCard({ data }: EmotionDeepInsightCardProps) {
           <div className="bg-blue-50 rounded-lg p-3 border border-blue-100 flex-1 flex flex-col">
             <div className="flex items-center gap-1.5 mb-2 text-blue-700 font-bold text-xs">
               <Search className="w-3 h-3" />
-              次検索予測 (比較・絶望)
+              次検索予測 (Future Search)
             </div>
             <div className="flex flex-wrap gap-1.5">
               {data.futureSearches && data.futureSearches.map((kw, idx) => (
-                <span key={idx} className="px-2 py-0.5 bg-white text-blue-800 text-[10px] font-bold rounded-md border border-blue-200">
+                <motion.span 
+                  key={idx} 
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: idx * 0.1 }}
+                  className="px-2 py-0.5 bg-white text-blue-800 text-[10px] font-bold rounded-md border border-blue-200 shadow-sm"
+                >
                   {kw}
-                </span>
+                </motion.span>
               ))}
             </div>
           </div>

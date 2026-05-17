@@ -11,6 +11,7 @@ import { SuggestStreamCard } from "@/components/dashboard/suggest-stream";
 import { SearchChainCard } from "@/components/dashboard/search-chain";
 import { EmotionDeepInsightCard } from "@/components/dashboard/emotion-insight";
 import { AIBootSequence } from "@/components/dashboard/boot-sequence";
+import { LiveTicker } from "@/components/layout/live-ticker";
 import { AnalysisResult } from "@/types";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase/client";
@@ -181,6 +182,7 @@ export default function Dashboard() {
       <Sidebar history={history} onLoadHistory={loadFromHistory} />
       
       <div className="flex-1 flex flex-col min-w-0 p-4 gap-4 h-full overflow-hidden">
+        <LiveTicker />
         <KeywordInputCard onSearch={handleSearch} isLoading={isLoading} />
         <ScoreBoard score={result.score} pain={result.painScore} />
         
