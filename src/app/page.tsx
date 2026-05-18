@@ -182,10 +182,11 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#F8FAFC] font-sans">
+    <div className="flex h-screen w-screen overflow-hidden bg-[#F8FAFC] font-sans relative">
       <Sidebar history={history} onLoadHistory={loadFromHistory} />
       
-      <div className="flex-1 flex flex-col min-w-0 p-4 gap-4 h-full overflow-hidden">
+      {/* 左右にサイドバー呼び出し用のアフォーダンス領域（パディング）を設ける */}
+      <div className="flex-1 flex flex-col min-w-0 py-4 px-8 gap-4 h-full overflow-hidden">
         <LiveTicker />
         <KeywordInputCard onSearch={handleSearch} isLoading={isLoading} />
         <ScoreBoard score={result.score} pain={result.painScore} />
