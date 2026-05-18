@@ -79,16 +79,16 @@ export default function Dashboard() {
       intentStats: data.intentStages || data.intent_stages || { "未認知": 0, "問題認知": 0, "解決策探し": 0, "選択肢比較": 0, "今すぐ買う": 0 },
       appIdeas: data.appIdeas || data.generated_apps || [],
       competitorInsights: data.competitorInsights || [],
-      emotionReason: data.emotionReason || data.raw_json?.emotionReason || "",
-      urgencyLevel: data.urgencyLevel || data.raw_json?.urgencyLevel || 50,
-      purchaseIntent: data.purchaseIntent || data.raw_json?.purchaseIntent || 50,
-      futureSearches: data.futureSearches || data.raw_json?.futureSearches || [],
-      painReason: data.painReason || data.raw_json?.painReason || "",
-      opportunityReason: data.opportunityReason || data.raw_json?.opportunityReason || "",
-      mvpSpec: data.mvpSpec || data.generated_specs?.[0]?.content || "",
-      seoPack: data.seoPack || data.seo_video_packs?.[0]?.seo_data || { title: "", description: "", h1: "" },
-      videoIdeas: data.videoIdeas || data.seo_video_packs?.[0]?.video_ideas || [],
-      launchPlan: data.launchPlan || [],
+      emotionReason: data.emotionReason || data.raw_json?.emotionReason || data.emotion_data?.emotionReason || "",
+      urgencyLevel: data.urgencyLevel || data.raw_json?.urgencyLevel || data.emotion_data?.urgencyLevel || 50,
+      purchaseIntent: data.purchaseIntent || data.raw_json?.purchaseIntent || data.emotion_data?.purchaseIntent || 50,
+      futureSearches: data.futureSearches || data.raw_json?.futureSearches || data.emotion_data?.futureSearches || [],
+      painReason: data.painReason || data.raw_json?.painReason || data.emotion_data?.painReason || "",
+      opportunityReason: data.opportunityReason || data.raw_json?.opportunityReason || data.emotion_data?.opportunityReason || "",
+      mvpSpec: data.mvpSpec || data.generated_specs?.[0]?.content || data.raw_json?.mvpSpec || "",
+      seoPack: data.seoPack || data.seo_video_packs?.[0]?.seo_data || data.raw_json?.seoPack || { title: "", description: "", h1: "" },
+      videoIdeas: data.videoIdeas || data.seo_video_packs?.[0]?.video_ideas || data.raw_json?.videoIdeas || [],
+      launchPlan: data.launchPlan || data.raw_json?.launchPlan || [],
       suggestions: suggestionsData?.suggestions || []
     };
   };
@@ -148,9 +148,12 @@ export default function Dashboard() {
     const toastId = toast.loading(`「${item.keyword}」の分析履歴を復元中...`);
 
     try {
+      const resHistoryPromise = fetch(`/api/history/${item.id}`);
+      const resSuggestsDbPromise = supabase.from("suggest_keywords").select("*, emotion_scores(*)").eq("query_id", item.id).then(res => res, err => ({ data: null, error: err }));
+
       const [resHistory, resSuggestsDb] = await Promise.all([
-        fetch(`/api/history/${item.id}`),
-        supabase.from("suggest_keywords").select("*, emotion_scores(*)").eq("query_id", item.id).catch(() => ({ data: null }))
+        resHistoryPromise,
+        resSuggestsDbPromise
       ]);
       
       if (!resHistory.ok) throw new Error("履歴の取得に失敗しました");
