@@ -1,11 +1,5 @@
 "use client";
 
-import React from "react";
-import { 
-  LayoutDashboard, 
-  Search, 
-  Map, 
-  Radar, 
 import React, { useState } from "react";
 import { LayoutDashboard, Compass, GitMerge, Lightbulb, Radar, Zap, TrendingUp, Rocket, Database, Settings, Search, PlusCircle, Clock, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";

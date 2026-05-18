@@ -5,6 +5,7 @@ import { Activity, Flame, Trophy, Terminal, Radar, Cpu, ChevronLeft } from "luci
 import { motion, AnimatePresence } from "framer-motion";
 import { AnalysisResult } from "@/types";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface SystemStatusSidebarProps {
   result?: AnalysisResult;
