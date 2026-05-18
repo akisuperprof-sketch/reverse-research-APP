@@ -47,8 +47,8 @@ export function Sidebar({ history = [], onLoadHistory }: SidebarProps) {
     <aside className="w-[240px] flex-shrink-0 border-r border-slate-200 bg-white flex flex-col h-full z-10">
       <div className="p-5">
         <div className="flex items-center gap-3 mb-8">
-          <img src="/rever-icon.png" alt="reverse research" className="w-8 h-8 rounded-lg shadow-sm border border-slate-100 object-cover" />
-          <span className="text-lg font-bold tracking-tight text-slate-800">reverse research</span>
+          <img src="/logo-rever.png" alt="reverse research" className="w-16 h-16 rounded-xl shadow-sm border border-slate-100 object-cover" />
+          <span className="text-lg font-bold tracking-tight text-slate-800 leading-tight">reverse<br/>research</span>
         </div>
 
         <Button className="w-full justify-start gap-2 rounded-xl mb-2 bg-slate-900 hover:bg-slate-800 text-white shadow-sm" variant="default">
