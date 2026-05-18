@@ -59,4 +59,78 @@ export interface AnalysisResult {
     opportunityScore: number;
   }[];
   sessionId?: string;
+
+  // Next-Gen Core Value Additions (REVERSE-RESEARCH-CORE-VALUE-REFOCUS-001)
+  nextSearchMap?: NextSearchMapItem[];
+  wantedApp?: WantedApp;
+  mvpOneFeature?: MvpOneFeature;
+  videoHooks?: VideoHooks;
+  competitorGap?: CompetitorGap;
+  appSpecPreview?: AppSpecPreview;
+  decision?: Decision;
+}
+
+export interface NextSearchMapItem {
+  keyword: string;
+  stage: string;
+  emotion: string;
+  intent: string;
+  priority: number;
+  mvpPotential: number;
+}
+
+export interface WantedApp {
+  name: string;
+  targetUser: string;
+  coreProblem: string;
+  oneFeature: string;
+  doNotBuild: string[];
+  difficulty: string;
+  estimatedDays: string;
+  winRate: number;
+}
+
+export interface MvpOneFeature {
+  build: string;
+  remove: string[];
+  first30secExperience: string;
+  freeValue: string;
+  paidValue: string;
+}
+
+export interface VideoHooks {
+  tiktokTitles: string[];
+  shortsTitles: string[];
+  first3secHooks: string[];
+  fifteenSecStructure: string;
+  thirtySecStructure: string;
+  cta: string;
+  riskNotes: string;
+}
+
+export interface CompetitorGap {
+  competitors: string[];
+  weaknesses: string[];
+  trustGap: string;
+  uiGap: string;
+  contentGap: string;
+  winningAngle: string;
+}
+
+export interface AppSpecPreview {
+  purpose: string;
+  targetUsers: string[];
+  features: string[];
+  screens: string[];
+  dataStructure: string[];
+  prohibited: string[];
+  safetyDesign: string[];
+  testItems: string[];
+}
+
+export interface Decision {
+  status: string;
+  score: number;
+  reasons: string[];
+  nextAction: string;
 }

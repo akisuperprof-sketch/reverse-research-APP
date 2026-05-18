@@ -55,7 +55,16 @@ export async function GET(
       mvpSpec: specRes.data?.content || "",
       seoPack: seoRes.data?.seo_data || {},
       videoIdeas: seoRes.data?.video_ideas || [],
-      createdAt: query.created_at
+      createdAt: query.created_at,
+      
+      // 新設Core Value属性の追加 (安全フォールバック)
+      nextSearchMap: query.emotion_data?.nextSearchMap || [],
+      wantedApp: query.emotion_data?.wantedApp || null,
+      mvpOneFeature: query.emotion_data?.mvpOneFeature || null,
+      videoHooks: query.emotion_data?.videoHooks || null,
+      competitorGap: query.emotion_data?.competitorGap || null,
+      appSpecPreview: query.emotion_data?.appSpecPreview || null,
+      decision: query.emotion_data?.decision || null
     };
 
     return NextResponse.json(result);
