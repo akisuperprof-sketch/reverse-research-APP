@@ -19,20 +19,20 @@ import { supabase } from "@/lib/supabase/client";
 import { Compass, TrendingUp, Lightbulb, Zap, ShieldCheck, Video, Database, CheckCircle2, AlertTriangle } from "lucide-react";
 
 // ==========================================
-// NEW Premium High-Density Bento Cards (Core Value Refocus)
+// NEW UPGRADED Premium High-Density Bento Cards (Core Value Engine Upgrade)
 // ==========================================
 
 const NextSearchMapCard = ({ nextSearchMap, legacyRelatedKeywords, searchChainNode }: { nextSearchMap?: any[], legacyRelatedKeywords: any[], searchChainNode: React.ReactNode }) => {
   const [tab, setTab] = useState<"next" | "legacy" | "chain">("next");
   return (
     <div className="bg-white/80 backdrop-blur-md rounded-xl border border-slate-200 shadow-sm flex flex-col h-full overflow-hidden text-slate-800 text-[11px] p-3">
-      <div className="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-2 flex-shrink-0">
+      <div className="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-1.5 flex-shrink-0">
         <div className="flex items-center gap-1.5 font-bold text-slate-700">
           <Compass className="w-3.5 h-3.5 text-blue-500" />
-          <span>Next Search Map</span>
+          <span>Next Search Prediction (時系列の心理変化/依存化予測)</span>
         </div>
         <div className="flex bg-slate-100 rounded p-0.5 text-[9px] gap-0.5">
-          <button onClick={() => setTab("next")} className={`px-2 py-0.5 rounded transition-all ${tab === "next" ? "bg-white font-bold shadow-xs text-blue-600" : "text-slate-500 hover:text-slate-800"}`}>次検索</button>
+          <button onClick={() => setTab("next")} className={`px-2 py-0.5 rounded transition-all ${tab === "next" ? "bg-white font-bold shadow-xs text-blue-600" : "text-slate-500 hover:text-slate-800"}`}>次検索フロー</button>
           <button onClick={() => setTab("legacy")} className={`px-2 py-0.5 rounded transition-all ${tab === "legacy" ? "bg-white font-bold shadow-xs text-blue-600" : "text-slate-500 hover:text-slate-800"}`}>サジェスト</button>
           <button onClick={() => setTab("chain")} className={`px-2 py-0.5 rounded transition-all ${tab === "chain" ? "bg-white font-bold shadow-xs text-blue-600" : "text-slate-500 hover:text-slate-800"}`}>意図連鎖</button>
         </div>
@@ -44,16 +44,26 @@ const NextSearchMapCard = ({ nextSearchMap, legacyRelatedKeywords, searchChainNo
               <div className="text-slate-400 text-center py-4">分析データを読み込んでください</div>
             ) : (
               nextSearchMap.map((item, idx) => (
-                <div key={idx} className="flex items-center justify-between p-1.5 rounded-lg bg-slate-50/50 hover:bg-slate-50 border border-slate-100/80 transition-colors">
+                <div key={idx} className="relative flex items-center justify-between p-1.5 rounded-lg bg-slate-50/50 hover:bg-slate-50 border border-slate-100/80 transition-colors">
                   <div className="flex flex-col min-w-0">
-                    <span className="font-bold text-slate-800 truncate">{item.keyword}</span>
-                    <span className="text-[9px] text-slate-500 flex items-center gap-1">
-                      <span>{item.stage}</span> • <span className="text-indigo-500 font-medium">{item.emotion}</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="bg-slate-200 text-slate-700 text-[8px] font-black rounded-full w-3.5 h-3.5 flex items-center justify-center flex-shrink-0">{idx + 1}</span>
+                      <span className="font-bold text-slate-800 truncate">{item.keyword}</span>
+                    </div>
+                    <p className="text-[9px] text-slate-500 mt-0.5 leading-normal"><span className="font-bold text-slate-600">心理変化:</span> {item.psychology || "遷移中"}</p>
+                    <span className="text-[8.5px] text-slate-400 mt-0.5 flex items-center gap-1 flex-wrap">
+                      <span className="bg-slate-100 text-slate-600 px-1 rounded">{item.stage}</span> • <span>感情: <span className="text-indigo-500 font-bold">{item.emotion}</span></span>
                     </span>
                   </div>
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    <span className="bg-blue-50 text-blue-600 text-[8px] font-black px-1.5 py-0.5 rounded">MVP {item.mvpPotential}%</span>
-                    <span className="bg-amber-50 text-amber-600 text-[8px] font-bold px-1 py-0.5 rounded">優先 {item.priority}</span>
+                  <div className="flex flex-col items-end gap-0.5 flex-shrink-0 ml-2">
+                    <div className="flex items-center gap-1">
+                      {item.isPurchaseReady && <span className="bg-rose-50 text-rose-600 border border-rose-100 text-[8px] font-black px-1 py-0.5 rounded animate-pulse">課金直前!</span>}
+                      <span className="bg-blue-50 text-blue-600 text-[8px] font-black px-1.5 py-0.5 rounded">MVP {item.mvpPotential}%</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-[8px] text-slate-400">
+                      <span>絶望: <span className="text-rose-500 font-bold">{item.despairLevel || 50}%</span></span>
+                      <span>依存: <span className="text-indigo-500 font-bold">{item.dependencyLevel || 50}%</span></span>
+                    </div>
                   </div>
                 </div>
               ))
@@ -73,7 +83,7 @@ const HighDensityScoreBoard = ({ result, emotionNode }: { result: AnalysisResult
   const [tab, setTab] = useState<"scores" | "emotion">("scores");
   return (
     <div className="bg-white/80 backdrop-blur-md rounded-xl border border-slate-200 shadow-sm flex flex-col h-full overflow-hidden text-slate-800 text-[11px] p-3">
-      <div className="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-2 flex-shrink-0">
+      <div className="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-1.5 flex-shrink-0">
         <div className="flex items-center gap-1.5 font-bold text-slate-700">
           <TrendingUp className="w-3.5 h-3.5 text-indigo-500" />
           <span>Pain & Intent Scores</span>
@@ -85,45 +95,45 @@ const HighDensityScoreBoard = ({ result, emotionNode }: { result: AnalysisResult
       </div>
       <div className="flex-1 overflow-y-auto hide-scrollbar min-h-0">
         {tab === "scores" ? (
-          <div className="flex items-center justify-around h-full py-2">
+          <div className="flex items-center justify-around h-full py-1">
             <div className="flex flex-col items-center">
-              <div className="relative w-14 h-14 flex items-center justify-center">
+              <div className="relative w-13 h-13 flex items-center justify-center">
                 <svg className="w-full h-full transform -rotate-90">
-                  <circle cx="28" cy="28" r="24" className="stroke-slate-100" strokeWidth="4" fill="transparent" />
-                  <circle cx="28" cy="28" r="24" className="stroke-rose-500 transition-all duration-500" strokeWidth="4" fill="transparent" strokeDasharray={2 * Math.PI * 24} strokeDashoffset={2 * Math.PI * 24 * (1 - (result.painScore || 0) / 100)} />
+                  <circle cx="26" cy="26" r="22" className="stroke-slate-100" strokeWidth="4" fill="transparent" />
+                  <circle cx="26" cy="26" r="22" className="stroke-rose-500 transition-all duration-500" strokeWidth="4" fill="transparent" strokeDasharray={2 * Math.PI * 22} strokeDashoffset={2 * Math.PI * 22 * (1 - (result.painScore || 0) / 100)} />
                 </svg>
-                <span className="absolute text-[11px] font-black text-rose-600">{result.painScore || 0}</span>
+                <span className="absolute text-[10.5px] font-black text-rose-600">{result.painScore || 0}</span>
               </div>
-              <span className="text-[9px] font-bold text-slate-500 mt-1 text-center">悩みの深さ<br/>(Pain)</span>
+              <span className="text-[8.5px] font-bold text-slate-500 mt-1 text-center leading-tight">ペイン深さ<br/>(Pain)</span>
             </div>
 
             <div className="flex flex-col items-center">
-              <div className="relative w-14 h-14 flex items-center justify-center">
+              <div className="relative w-13 h-13 flex items-center justify-center">
                 <svg className="w-full h-full transform -rotate-90">
-                  <circle cx="28" cy="28" r="24" className="stroke-slate-100" strokeWidth="4" fill="transparent" />
-                  <circle cx="28" cy="28" r="24" className="stroke-emerald-500 transition-all duration-500" strokeWidth="4" fill="transparent" strokeDasharray={2 * Math.PI * 24} strokeDashoffset={2 * Math.PI * 24 * (1 - (result.purchaseIntent || 50) / 100)} />
+                  <circle cx="26" cy="26" r="22" className="stroke-slate-100" strokeWidth="4" fill="transparent" />
+                  <circle cx="26" cy="26" r="22" className="stroke-emerald-500 transition-all duration-500" strokeWidth="4" fill="transparent" strokeDasharray={2 * Math.PI * 22} strokeDashoffset={2 * Math.PI * 22 * (1 - (result.purchaseIntent || 50) / 100)} />
                 </svg>
-                <span className="absolute text-[11px] font-black text-emerald-600">{result.purchaseIntent || 50}</span>
+                <span className="absolute text-[10.5px] font-black text-emerald-600">{result.purchaseIntent || 50}</span>
               </div>
-              <span className="text-[9px] font-bold text-slate-500 mt-1 text-center">購入意図<br/>(Purchase)</span>
+              <span className="text-[8.5px] font-bold text-slate-500 mt-1 text-center leading-tight">購入意欲<br/>(Purchase)</span>
             </div>
 
             <div className="flex flex-col items-center">
-              <div className="relative w-14 h-14 flex items-center justify-center">
+              <div className="relative w-13 h-13 flex items-center justify-center">
                 <svg className="w-full h-full transform -rotate-90">
-                  <circle cx="28" cy="28" r="24" className="stroke-slate-100" strokeWidth="4" fill="transparent" />
-                  <circle cx="28" cy="28" r="24" className="stroke-amber-500 transition-all duration-500" strokeWidth="4" fill="transparent" strokeDasharray={2 * Math.PI * 24} strokeDashoffset={2 * Math.PI * 24 * (1 - (result.urgencyLevel || 50) / 100)} />
+                  <circle cx="26" cy="26" r="22" className="stroke-slate-100" strokeWidth="4" fill="transparent" />
+                  <circle cx="26" cy="26" r="22" className="stroke-amber-500 transition-all duration-500" strokeWidth="4" fill="transparent" strokeDasharray={2 * Math.PI * 22} strokeDashoffset={2 * Math.PI * 22 * (1 - (result.urgencyLevel || 50) / 100)} />
                 </svg>
-                <span className="absolute text-[11px] font-black text-amber-600">{result.urgencyLevel || 50}</span>
+                <span className="absolute text-[10.5px] font-black text-amber-600">{result.urgencyLevel || 50}</span>
               </div>
-              <span className="text-[9px] font-bold text-slate-500 mt-1 text-center">緊急度<br/>(Urgency)</span>
+              <span className="text-[8.5px] font-bold text-slate-500 mt-1 text-center leading-tight">緊急度<br/>(Urgency)</span>
             </div>
           </div>
         ) : (
-          <div className="h-full min-h-0 flex flex-col gap-2">
-            <div className="space-y-1.5 p-2 bg-slate-50 rounded-lg overflow-y-auto">
-              <div className="font-bold text-indigo-600 text-[9px] uppercase tracking-wider">感情トリガー</div>
-              <p className="text-[10px] text-slate-600 leading-normal">{result.emotionReason || "データなし"}</p>
+          <div className="h-full min-h-0 flex flex-col gap-1.5">
+            <div className="space-y-1 p-1.5 bg-slate-50 rounded-lg overflow-y-auto">
+              <div className="font-bold text-indigo-600 text-[8.5px] uppercase tracking-wider">感情トリガー</div>
+              <p className="text-[9.5px] text-slate-600 leading-normal">{result.emotionReason || "データなし"}</p>
             </div>
             <div className="flex-1 min-h-0 overflow-hidden">{emotionNode}</div>
           </div>
@@ -136,40 +146,60 @@ const HighDensityScoreBoard = ({ result, emotionNode }: { result: AnalysisResult
 const WantedAppPanel = ({ wantedApp }: { wantedApp?: any }) => {
   return (
     <div className="bg-[#0B1120] text-slate-300 rounded-xl border border-slate-800 shadow-xl flex flex-col h-full overflow-hidden text-[11px] p-3">
-      <div className="flex items-center gap-1.5 font-bold text-slate-100 border-b border-slate-800 pb-1.5 mb-2 flex-shrink-0">
+      <div className="flex items-center gap-1.5 font-bold text-slate-100 border-b border-slate-800 pb-1.5 mb-1.5 flex-shrink-0">
         <Lightbulb className="w-3.5 h-3.5 text-blue-400" />
-        <span>Wanted App Panel</span>
+        <span>Wanted App (売れる単機能MVP定義)</span>
       </div>
       <div className="flex-1 overflow-y-auto hide-scrollbar space-y-2 min-h-0">
         {!wantedApp ? (
           <div className="text-slate-500 text-center py-4">分析完了後に表示されます</div>
         ) : (
           <>
-            <div>
-              <span className="text-[9px] text-blue-400 font-bold block">アプリ案名称</span>
-              <span className="text-[12px] font-black text-white">{wantedApp.name}</span>
-            </div>
-            <div className="grid grid-cols-2 gap-2 bg-slate-900/60 p-1.5 rounded-lg border border-slate-800/80">
-              <div>
-                <span className="text-[8px] text-slate-500 block">ターゲット</span>
-                <span className="text-[9px] text-slate-300 font-bold truncate block">{wantedApp.targetUser}</span>
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <span className="text-[8px] text-blue-400 font-bold block">アプリ名称（ユーザーが本当に欲しいもの）</span>
+                <span className="text-[12px] font-black text-white truncate block">{wantedApp.name}</span>
               </div>
-              <div>
-                <span className="text-[8px] text-slate-500 block">推定開発期間 / 難易度</span>
-                <span className="text-[9px] text-slate-300 font-bold block">{wantedApp.estimatedDays} ({wantedApp.difficulty})</span>
+              <div className="bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800 text-right flex-shrink-0">
+                <span className="text-[7.5px] text-slate-500 block">勝率</span>
+                <span className="text-[10px] font-black text-emerald-400 block">{wantedApp.winRate || 80}%</span>
               </div>
             </div>
-            <div>
-              <span className="text-[9px] text-rose-400 font-bold block">解決する最大の問題</span>
-              <p className="text-[10px] text-slate-300 leading-snug">{wantedApp.coreProblem}</p>
+
+            <div className="grid grid-cols-2 gap-1.5 bg-slate-900/50 p-1.5 rounded border border-slate-800/80">
+              <div>
+                <span className="text-[7.5px] text-slate-500 block">ターゲット</span>
+                <span className="text-[8.5px] text-slate-300 font-bold truncate block">{wantedApp.targetUser}</span>
+              </div>
+              <div>
+                <span className="text-[7.5px] text-slate-500 block">初日開発期間/難易度</span>
+                <span className="text-[8.5px] text-slate-300 font-bold block truncate">{wantedApp.estimatedDays || "2日"} ({wantedApp.difficulty || "低"})</span>
+              </div>
             </div>
+
+            <div>
+              <span className="text-[8.5px] text-rose-400 font-bold block">欲しい根本的な行動心理</span>
+              <p className="text-[9.5px] text-slate-300 leading-snug">{wantedApp.whyWanted}</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-1.5 text-[8.5px] leading-snug">
+              <div className="bg-rose-950/20 border border-rose-900/50 p-1.5 rounded">
+                <span className="text-rose-400 font-bold block">既存がダメな理由</span>
+                <span className="text-slate-300 text-[8px] mt-0.5 block leading-tight">{wantedApp.whyExistingFails}</span>
+              </div>
+              <div className="bg-emerald-950/20 border border-emerald-900/50 p-1.5 rounded">
+                <span className="text-emerald-400 font-bold block">課金される理由</span>
+                <span className="text-slate-300 text-[8px] mt-0.5 block leading-tight">{wantedApp.monetizationReason}</span>
+              </div>
+            </div>
+
             <div className="bg-rose-500/10 border border-rose-500/20 rounded p-1.5 flex-shrink-0">
               <span className="text-[8px] text-rose-300 font-black block flex items-center gap-1">
-                <AlertTriangle className="w-2.5 h-2.5" /> 作ってはいけない機能
+                <AlertTriangle className="w-2.5 h-2.5" /> 絶対に削るべき機能スコープ
               </span>
-              <ul className="list-disc list-inside text-[9px] text-rose-200 mt-0.5 space-y-0.5">
-                {wantedApp.doNotBuild?.map((item: string, i: number) => (
-                  <li key={i} className="truncate">{item}</li>
+              <ul className="text-[9px] text-rose-200/90 mt-0.5 space-y-0.5">
+                {(wantedApp.absoluteCut || wantedApp.doNotBuild)?.slice(0, 2).map((item: string, i: number) => (
+                  <li key={i} className="truncate line-through">• {item}</li>
                 ))}
               </ul>
             </div>
@@ -180,12 +210,12 @@ const WantedAppPanel = ({ wantedApp }: { wantedApp?: any }) => {
   );
 };
 
-const MvpOneFeatureCard = ({ mvpOneFeature }: { mvpOneFeature?: any }) => {
+const MvpOneFeatureCard = ({ mvpOneFeature, firstDayScope }: { mvpOneFeature?: any, firstDayScope?: string }) => {
   return (
     <div className="bg-white/80 backdrop-blur-md rounded-xl border border-slate-200 shadow-sm flex flex-col h-full overflow-hidden text-slate-800 text-[11px] p-3">
-      <div className="flex items-center gap-1.5 font-bold text-slate-700 border-b border-slate-100 pb-1.5 mb-2 flex-shrink-0">
+      <div className="flex items-center gap-1.5 font-bold text-slate-700 border-b border-slate-100 pb-1.5 mb-1.5 flex-shrink-0">
         <Zap className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
-        <span>MVP 1 Feature</span>
+        <span>MVP 1 Feature (最小機能と実装範囲)</span>
       </div>
       <div className="flex-1 overflow-y-auto hide-scrollbar space-y-2 min-h-0">
         {!mvpOneFeature ? (
@@ -193,26 +223,34 @@ const MvpOneFeatureCard = ({ mvpOneFeature }: { mvpOneFeature?: any }) => {
         ) : (
           <>
             <div className="bg-amber-50 border border-amber-200/80 rounded p-1.5">
-              <span className="text-[9px] text-amber-700 font-black block">作るべき唯一の機能</span>
-              <span className="text-[11px] font-bold text-slate-800 block mt-0.5 leading-snug">{mvpOneFeature.build}</span>
+              <span className="text-[8.5px] text-amber-700 font-black block">作るべき唯一の機能</span>
+              <span className="text-[10px] font-bold text-slate-800 block mt-0.5 leading-snug">{mvpOneFeature.build}</span>
             </div>
+            
+            <div className="bg-blue-50/50 border border-blue-200/40 rounded p-1.5">
+              <span className="text-[8.5px] text-blue-700 font-black block">初日で実装すべき範囲</span>
+              <span className="text-[9.5px] font-bold text-slate-800 block mt-0.5 leading-snug">{firstDayScope || "基本UIとロジック実装"}</span>
+            </div>
+
             <div className="bg-slate-50 border border-slate-200/80 rounded p-1.5">
-              <span className="text-[9px] text-slate-500 font-bold block">MVPから削るべき機能</span>
-              <ul className="text-[9px] text-slate-400 mt-0.5 space-y-0.5">
-                {mvpOneFeature.remove?.map((item: string, i: number) => (
+              <span className="text-[8.5px] text-slate-500 font-bold block">MVPから削るべき機能</span>
+              <ul className="text-[8.5px] text-slate-400 mt-0.5 space-y-0.5">
+                {mvpOneFeature.remove?.slice(0, 2).map((item: string, i: number) => (
                   <li key={i} className="line-through flex items-center gap-1">
                     <span>• {item}</span>
                   </li>
                 ))}
               </ul>
             </div>
+            
             <div>
-              <span className="text-[8px] text-indigo-500 font-bold block">最初の30秒の感動体験</span>
+              <span className="text-[8px] text-indigo-500 font-bold block">最初の30秒の体験（アハ・モーメント）</span>
               <p className="text-[9px] text-slate-600 leading-snug">{mvpOneFeature.first30secExperience}</p>
             </div>
-            <div className="grid grid-cols-2 gap-1.5 text-[9px]">
+            
+            <div className="grid grid-cols-2 gap-1.5 text-[8.5px]">
               <div className="bg-emerald-50/50 p-1 rounded">
-                <span className="text-emerald-700 font-bold block">無料で見せる価値</span>
+                <span className="text-emerald-700 font-bold block">無料見せる価値</span>
                 <span className="text-[8px] text-slate-600 block leading-tight">{mvpOneFeature.freeValue}</span>
               </div>
               <div className="bg-blue-50/50 p-1 rounded">
@@ -231,13 +269,13 @@ const CompetitorGapCard = ({ competitorGap, legacyClusterEngine }: { competitorG
   const [tab, setTab] = useState<"gap" | "cluster">("gap");
   return (
     <div className="bg-white/80 backdrop-blur-md rounded-xl border border-slate-200 shadow-sm flex flex-col h-full overflow-hidden text-slate-800 text-[11px] p-3">
-      <div className="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-2 flex-shrink-0">
+      <div className="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-1.5 flex-shrink-0">
         <div className="flex items-center gap-1.5 font-bold text-slate-700">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-          <span>Competitor Gap</span>
+          <span>Competitor Gap (心理的競合差分)</span>
         </div>
         <div className="flex bg-slate-100 rounded p-0.5 text-[9px] gap-0.5">
-          <button onClick={() => setTab("gap")} className={`px-2 py-0.5 rounded transition-all ${tab === "gap" ? "bg-white font-bold shadow-xs text-emerald-600" : "text-slate-500 hover:text-slate-800"}`}>隙間・強み</button>
+          <button onClick={() => setTab("gap")} className={`px-2 py-0.5 rounded transition-all ${tab === "gap" ? "bg-white font-bold shadow-xs text-emerald-600" : "text-slate-500 hover:text-slate-800"}`}>心理比較</button>
           <button onClick={() => setTab("cluster")} className={`px-2 py-0.5 rounded transition-all ${tab === "cluster" ? "bg-white font-bold shadow-xs text-emerald-600" : "text-slate-500 hover:text-slate-800"}`}>感情クラスタ</button>
         </div>
       </div>
@@ -248,23 +286,29 @@ const CompetitorGapCard = ({ competitorGap, legacyClusterEngine }: { competitorG
           ) : (
             <div className="space-y-1.5">
               <div>
-                <span className="text-[8px] text-slate-500 block">主要競合 / 弱点</span>
-                <div className="text-[9px] text-slate-700 font-medium leading-snug">
-                  {competitorGap.competitors?.join(", ")} の弱点: {competitorGap.weaknesses?.join(" • ")}
+                <span className="text-[7.5px] text-slate-500 block">想定される競合</span>
+                <span className="text-[8.5px] text-slate-800 font-bold block truncate">{competitorGap.competitors?.join(", ") || "既存のSEO記事等"}</span>
+              </div>
+              
+              <div className="bg-slate-50 p-1.5 rounded border border-slate-200/60 text-[8.5px] leading-snug space-y-1">
+                <div>
+                  <span className="text-rose-500 font-bold block">既存が引き起こすストレス/不信感</span>
+                  <p className="text-slate-600 text-[8px] leading-tight">{competitorGap.emotionFrustration || "フィッシング詐欺っぽさ"}</p>
+                </div>
+                <div className="grid grid-cols-2 gap-1.5 border-t border-slate-200/50 pt-1">
+                  <div>
+                    <span className="text-indigo-500 font-bold block">UI不信感・邪魔広告</span>
+                    <p className="text-slate-500 text-[8px] leading-tight truncate">{competitorGap.uiDistrust || "広告のうざさ"}</p>
+                  </div>
+                  <div>
+                    <span className="text-amber-500 font-bold block">安心感不足</span>
+                    <p className="text-slate-500 text-[8px] leading-tight truncate">{competitorGap.trustShortage || "ログイン強要"}</p>
+                  </div>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-1.5 bg-slate-50 p-1.5 rounded border border-slate-100">
-                <div>
-                  <span className="text-[8px] text-indigo-500 font-bold block">UI差別化</span>
-                  <span className="text-[9px] text-slate-600 block leading-snug">{competitorGap.uiGap}</span>
-                </div>
-                <div>
-                  <span className="text-[8px] text-emerald-500 font-bold block">信頼性差別化</span>
-                  <span className="text-[9px] text-slate-600 block leading-snug">{competitorGap.trustGap}</span>
-                </div>
-              </div>
+
               <div className="bg-emerald-50 border border-emerald-100 rounded p-1.5 flex-shrink-0">
-                <span className="text-[8px] text-emerald-700 font-black block">勝てる切り口</span>
+                <span className="text-[8px] text-emerald-700 font-black block">勝利ポジショニング・切り口</span>
                 <span className="text-[9px] text-slate-800 font-bold block mt-0.5 leading-snug">{competitorGap.winningAngle}</span>
               </div>
             </div>
@@ -279,46 +323,74 @@ const CompetitorGapCard = ({ competitorGap, legacyClusterEngine }: { competitorG
 
 const VideoHookCard = ({ videoHooks, suggestStreamNode }: { videoHooks?: any, suggestStreamNode: React.ReactNode }) => {
   const [tab, setTab] = useState<"video" | "suggest">("video");
+  const [genderTab, setGenderTab] = useState<"unisex" | "female" | "male">("unisex");
+
   return (
     <div className="bg-white/80 backdrop-blur-md rounded-xl border border-slate-200 shadow-sm flex flex-col h-full overflow-hidden text-slate-800 text-[11px] p-3">
-      <div className="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-2 flex-shrink-0">
+      <div className="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-1.5 flex-shrink-0">
         <div className="flex items-center gap-1.5 font-bold text-slate-700">
           <Video className="w-3.5 h-3.5 text-rose-500" />
-          <span>Video Hook Panel</span>
+          <span>Video Hook Engine</span>
         </div>
         <div className="flex bg-slate-100 rounded p-0.5 text-[9px] gap-0.5">
           <button onClick={() => setTab("video")} className={`px-2 py-0.5 rounded transition-all ${tab === "video" ? "bg-white font-bold shadow-xs text-rose-600" : "text-slate-500 hover:text-slate-800"}`}>動画フック</button>
-          <button onClick={() => setTab("suggest")} className={`px-2 py-0.5 rounded transition-all ${tab === "suggest" ? "bg-white font-bold shadow-xs text-rose-600" : "text-slate-500 hover:text-slate-800"}`}>サジェスト流</button>
+          <button onClick={() => setTab("suggest")} className={`px-2 py-0.5 rounded transition-all ${tab === "suggest" ? "bg-white font-bold shadow-xs text-rose-600" : "text-slate-500 hover:text-slate-800"}`}>サジェスト</button>
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto hide-scrollbar min-h-0">
+      <div className="flex-1 overflow-y-auto hide-scrollbar min-h-0 flex flex-col">
         {tab === "video" ? (
           !videoHooks ? (
             <div className="text-slate-400 text-center py-4">分析完了後に表示されます</div>
           ) : (
-            <div className="space-y-2">
-              <div>
-                <span className="text-[8px] text-slate-500 font-bold block">TikTok / Reels タイトル案</span>
-                <span className="text-[9.5px] font-black text-rose-600 block truncate">{videoHooks.tiktokTitles?.[0] || "タイトル生成中"}</span>
-                <span className="text-[8px] text-slate-400 block truncate">{videoHooks.tiktokTitles?.[1]}</span>
-              </div>
-              <div>
-                <span className="text-[8px] text-indigo-500 font-bold block">冒頭3秒強烈フック</span>
-                <span className="text-[9.5px] font-bold text-slate-800 block bg-slate-50 p-1 rounded border border-slate-100 leading-snug">{videoHooks.first3secHooks?.[0]}</span>
-              </div>
-              <div className="grid grid-cols-2 gap-1.5 bg-rose-50/50 p-1.5 rounded border border-rose-100">
-                <div>
-                  <span className="text-[8px] text-rose-700 font-bold block">15秒構成</span>
-                  <span className="text-[8px] text-slate-600 block leading-tight">{videoHooks.fifteenSecStructure}</span>
-                </div>
-                <div>
-                  <span className="text-[8px] text-rose-700 font-bold block">30秒構成</span>
-                  <span className="text-[8px] text-slate-600 block leading-tight">{videoHooks.thirtySecStructure}</span>
+            <div className="space-y-2 flex-1 min-h-0 overflow-y-auto hide-scrollbar">
+              {/* Gender selector tab */}
+              <div className="flex items-center justify-between bg-slate-50 rounded p-1 text-[8.5px]">
+                <span className="font-bold text-slate-500">性別モード切替:</span>
+                <div className="flex gap-1">
+                  <button onClick={() => setGenderTab("unisex")} className={`px-1.5 py-0.5 rounded transition-all ${genderTab === "unisex" ? "bg-white border border-slate-200 font-bold text-slate-800" : "text-slate-400"}`}>共通</button>
+                  <button onClick={() => setGenderTab("female")} className={`px-1.5 py-0.5 rounded transition-all ${genderTab === "female" ? "bg-rose-500 text-white font-bold" : "text-slate-400"}`}>女性向</button>
+                  <button onClick={() => setGenderTab("male")} className={`px-1.5 py-0.5 rounded transition-all ${genderTab === "male" ? "bg-blue-500 text-white font-bold" : "text-slate-400"}`}>男性向</button>
                 </div>
               </div>
+
               <div>
-                <span className="text-[8px] text-emerald-600 font-bold block">行動喚起 (CTA)</span>
-                <span className="text-[9px] text-slate-700 font-bold block truncate">{videoHooks.cta}</span>
+                <span className="text-[7.5px] text-slate-500 font-bold block">【最重要】冒頭3秒セリフ（アフレコ用）</span>
+                <span className="text-[9.5px] font-black text-rose-600 block bg-rose-50 p-1 rounded border border-rose-100/50 leading-snug">
+                  {genderTab === "female" ? `「LINEブロックされた女子、傷つく前にこれ見て…」` : 
+                   genderTab === "male" ? `「既読無視するあいつ、ブロックされてるか確認する方法あるよ」` : 
+                   (videoHooks.bestOpener || videoHooks.first3secHooks?.[0])}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-3 gap-1 bg-slate-50 p-1.5 rounded border border-slate-200/60 text-center text-[8px]">
+                <div>
+                  <span className="text-slate-400 block">維持率予測</span>
+                  <span className="font-black text-indigo-600 block text-[9.5px]">{videoHooks.retentionPrediction || 65}%</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block">保存率予測</span>
+                  <span className="font-black text-emerald-600 block text-[9.5px]">{videoHooks.saveRatePrediction || 70}%</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block">誘導感情</span>
+                  <span className="font-bold text-amber-600 block truncate">{videoHooks.emotionDirection || "安心"}</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-1.5 text-[8px] leading-tight">
+                <div className="bg-rose-50/50 p-1 rounded">
+                  <span className="text-rose-600 font-bold block">15秒構成</span>
+                  <span className="text-slate-500 block leading-tight">{videoHooks.fifteenSecStructure}</span>
+                </div>
+                <div className="bg-amber-50/50 p-1 rounded">
+                  <span className="text-amber-700 font-bold block">炎上率 / 煽り危険度</span>
+                  <span className="text-slate-500 block leading-tight">炎上:{videoHooks.flameRate || 10}% / 危険:{videoHooks.clickbaitRisk || 20}%</span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between border-t border-slate-100 pt-1 flex-shrink-0">
+                <span className="text-[7.5px] text-slate-500 font-bold block">視聴維持誘導 CTA</span>
+                <span className="text-[8.5px] text-slate-800 font-bold truncate block">{videoHooks.cta}</span>
               </div>
             </div>
           )
@@ -334,7 +406,7 @@ const AppSpecPreviewCard = ({ appSpecPreview, legacyAppIdeas, legacyMvpSpec }: {
   const [tab, setTab] = useState<"spec" | "ideas" | "markdown">("spec");
   return (
     <div className="bg-white/80 backdrop-blur-md rounded-xl border border-slate-200 shadow-sm flex flex-col h-full overflow-hidden text-slate-800 text-[11px] p-3">
-      <div className="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-2 flex-shrink-0">
+      <div className="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-1.5 flex-shrink-0">
         <div className="flex items-center gap-1.5 font-bold text-slate-700">
           <Database className="w-3.5 h-3.5 text-blue-500" />
           <span>App Spec Preview (Google Antigravity用仕様書)</span>
@@ -353,21 +425,21 @@ const AppSpecPreviewCard = ({ appSpecPreview, legacyAppIdeas, legacyMvpSpec }: {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <div>
-                  <span className="text-[8px] text-blue-500 font-bold block">目的</span>
-                  <p className="text-[9.5px] text-slate-700 leading-snug">{appSpecPreview.purpose}</p>
+                  <span className="text-[7.5px] text-blue-500 font-bold block">開発目的</span>
+                  <p className="text-[9px] text-slate-700 leading-snug">{appSpecPreview.purpose}</p>
                 </div>
                 <div>
-                  <span className="text-[8px] text-slate-500 font-bold block">対象ユーザー</span>
+                  <span className="text-[7.5px] text-slate-500 font-bold block">対象ユーザー</span>
                   <div className="flex flex-wrap gap-1 mt-0.5">
                     {appSpecPreview.targetUsers?.map((u: string, i: number) => (
-                      <span key={i} className="bg-slate-100 text-slate-600 px-1 py-0.5 rounded text-[8px]">{u}</span>
+                      <span key={i} className="bg-slate-100 text-slate-600 px-1 py-0.5 rounded text-[7.5px]">{u}</span>
                     ))}
                   </div>
                 </div>
                 <div>
-                  <span className="text-[8px] text-indigo-500 font-bold block">コア機能定義</span>
-                  <ul className="list-disc list-inside text-[9px] text-slate-600 space-y-0.5">
-                    {appSpecPreview.features?.map((f: string, i: number) => (
+                  <span className="text-[7.5px] text-indigo-500 font-bold block">コア機能定義</span>
+                  <ul className="list-disc list-inside text-[8.5px] text-slate-600 space-y-0.5">
+                    {appSpecPreview.features?.slice(0, 3).map((f: string, i: number) => (
                       <li key={i} className="truncate">{f}</li>
                     ))}
                   </ul>
@@ -375,17 +447,17 @@ const AppSpecPreviewCard = ({ appSpecPreview, legacyAppIdeas, legacyMvpSpec }: {
               </div>
               <div className="space-y-1.5">
                 <div>
-                  <span className="text-[8px] text-emerald-500 font-bold block">画面構成</span>
-                  <ul className="list-disc list-inside text-[9px] text-slate-600 space-y-0.5">
-                    {appSpecPreview.screens?.map((s: string, i: number) => (
+                  <span className="text-[7.5px] text-emerald-500 font-bold block">画面構成</span>
+                  <ul className="list-disc list-inside text-[8.5px] text-slate-600 space-y-0.5">
+                    {appSpecPreview.screens?.slice(0, 3).map((s: string, i: number) => (
                       <li key={i} className="truncate">{s}</li>
                     ))}
                   </ul>
                 </div>
                 <div>
-                  <span className="text-[8px] text-amber-500 font-bold block">安全設計・禁止事項</span>
-                  <ul className="list-disc list-inside text-[9px] text-slate-600 space-y-0.5">
-                    {appSpecPreview.safetyDesign?.map((d: string, i: number) => (
+                  <span className="text-[7.5px] text-amber-500 font-bold block">安全設計・禁止事項</span>
+                  <ul className="list-disc list-inside text-[8.5px] text-slate-600 space-y-0.5">
+                    {appSpecPreview.safetyDesign?.slice(0, 3).map((d: string, i: number) => (
                       <li key={i} className="truncate text-slate-600">{d}</li>
                     ))}
                   </ul>
@@ -408,9 +480,9 @@ const AppSpecPreviewCard = ({ appSpecPreview, legacyAppIdeas, legacyMvpSpec }: {
 const DecisionCard = ({ decision }: { decision?: any }) => {
   return (
     <div className="bg-white/80 backdrop-blur-md rounded-xl border border-slate-200 shadow-sm flex flex-col h-full overflow-hidden text-slate-800 text-[11px] p-3">
-      <div className="flex items-center gap-1.5 font-bold text-slate-700 border-b border-slate-100 pb-1.5 mb-2 flex-shrink-0">
+      <div className="flex items-center gap-1.5 font-bold text-slate-700 border-b border-slate-100 pb-1.5 mb-1.5 flex-shrink-0">
         <CheckCircle2 className="w-3.5 h-3.5 text-blue-500" />
-        <span>Decision Card</span>
+        <span>Decision Engine (実行判断・売上分析)</span>
       </div>
       <div className="flex-1 overflow-y-auto hide-scrollbar space-y-2 flex flex-col min-h-0">
         {!decision ? (
@@ -419,31 +491,49 @@ const DecisionCard = ({ decision }: { decision?: any }) => {
           <>
             <div className="flex items-center justify-between flex-shrink-0">
               <div>
-                <span className="text-[8px] text-slate-500 block">総合ジャッジ</span>
+                <span className="text-[7.5px] text-slate-500 block">総合意思決定</span>
                 <span className={`text-[12px] font-black px-2 py-0.5 rounded text-white inline-block mt-0.5 animate-pulse ${
                   decision.status?.includes("今すぐ") ? "bg-emerald-500" :
-                  decision.status?.includes("小さく") ? "bg-amber-500" :
+                  decision.status?.includes("小規模") || decision.status?.includes("小さく") ? "bg-amber-500" :
                   decision.status?.includes("保留") ? "bg-slate-500" : "bg-rose-500"
                 }`}>
                   {decision.status}
                 </span>
               </div>
               <div className="text-right">
-                <span className="text-[8px] text-slate-500 block">勝算スコア</span>
-                <span className="text-[16px] font-black text-slate-800">{decision.score}点</span>
+                <span className="text-[7.5px] text-slate-500 block">実行スコア</span>
+                <span className="text-[15px] font-black text-slate-800">{decision.score}点</span>
               </div>
             </div>
-            <div className="bg-slate-50 border border-slate-100 rounded p-1.5 flex-1 min-h-0 overflow-y-auto">
-              <span className="text-[8px] text-slate-500 font-bold block">判断理由</span>
-              <ul className="list-disc list-inside text-[9.5px] text-slate-600 mt-0.5 space-y-1">
-                {decision.reasons?.map((item: string, i: number) => (
-                  <li key={i} className="leading-snug">{item}</li>
+
+            {/* Sub Metrics Table */}
+            <div className="grid grid-cols-3 gap-1 bg-slate-50 p-1.5 rounded border border-slate-200 text-center text-[7.5px] leading-tight">
+              <div>
+                <span className="text-slate-400 block">収益化速度</span>
+                <span className="font-bold text-slate-800 block">速度: {decision.revenueSpeed || "中"}</span>
+              </div>
+              <div>
+                <span className="text-slate-400 block">AI開発しやすさ</span>
+                <span className="font-bold text-slate-800 block">容易度: {decision.aiGenerationEase || "中"}</span>
+              </div>
+              <div>
+                <span className="text-slate-400 block">アフィ相性</span>
+                <span className="font-bold text-slate-800 block">適合: {decision.affiliateFitness || "中"}</span>
+              </div>
+            </div>
+
+            <div className="flex-1 min-h-0 bg-slate-50 border border-slate-100 rounded p-1.5 overflow-y-auto">
+              <span className="text-[7.5px] text-slate-500 font-bold block">判断理由（拡散性・継続性）</span>
+              <ul className="list-disc list-inside text-[9px] text-slate-600 mt-0.5 space-y-0.5">
+                {decision.reasons?.slice(0, 2).map((item: string, i: number) => (
+                  <li key={i} className="leading-snug truncate">{item}</li>
                 ))}
               </ul>
             </div>
+            
             <div className="bg-blue-50 border border-blue-100 rounded p-1.5 flex-shrink-0">
               <span className="text-[8px] text-blue-700 font-black block">NEXT ACTION</span>
-              <span className="text-[10px] text-slate-800 font-bold block mt-0.5 leading-snug">{decision.nextAction}</span>
+              <span className="text-[9.5px] text-slate-800 font-bold block mt-0.5 leading-snug">{decision.nextAction}</span>
             </div>
           </>
         )}
@@ -677,7 +767,7 @@ export default function Dashboard() {
             <WantedAppPanel wantedApp={result.wantedApp} />
           </div>
           <div className="h-full">
-            <MvpOneFeatureCard mvpOneFeature={result.mvpOneFeature} />
+            <MvpOneFeatureCard mvpOneFeature={result.mvpOneFeature} firstDayScope={result.wantedApp?.firstDayScope} />
           </div>
           <div className="h-full">
             <CompetitorGapCard 

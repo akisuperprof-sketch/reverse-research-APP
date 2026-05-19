@@ -77,6 +77,11 @@ export interface NextSearchMapItem {
   intent: string;
   priority: number;
   mvpPotential: number;
+  // Enhanced
+  psychology?: string;
+  despairLevel?: number; // 0-100
+  dependencyLevel?: number; // 0-100
+  isPurchaseReady?: boolean;
 }
 
 export interface WantedApp {
@@ -88,6 +93,13 @@ export interface WantedApp {
   difficulty: string;
   estimatedDays: string;
   winRate: number;
+  // Enhanced
+  whyWanted?: string;
+  whyExistingFails?: string;
+  emotionTrigger?: string;
+  monetizationReason?: string;
+  firstDayScope?: string;
+  absoluteCut?: string[];
 }
 
 export interface MvpOneFeature {
@@ -106,6 +118,14 @@ export interface VideoHooks {
   thirtySecStructure: string;
   cta: string;
   riskNotes: string;
+  // Enhanced
+  bestOpener?: string;
+  flameRate?: number; // 0-100
+  saveRatePrediction?: number; // 0-100
+  emotionDirection?: string;
+  retentionPrediction?: number; // 0-100
+  genderMode?: "female" | "male" | "unisex";
+  clickbaitRisk?: number; // 0-100
 }
 
 export interface CompetitorGap {
@@ -115,6 +135,12 @@ export interface CompetitorGap {
   uiGap: string;
   contentGap: string;
   winningAngle: string;
+  // Enhanced
+  emotionFrustration?: string;
+  uiDistrust?: string;
+  adAnnoyance?: string;
+  infoFatigue?: string;
+  trustShortage?: string;
 }
 
 export interface AppSpecPreview {
@@ -129,8 +155,15 @@ export interface AppSpecPreview {
 }
 
 export interface Decision {
-  status: string;
+  status: string; // 今すぐ作る / 小規模検証 / 広告だけ / 動画だけ / 捨てる
   score: number;
   reasons: string[];
   nextAction: string;
+  // Enhanced
+  revenueSpeed?: string; // 高/中/低
+  snsVirality?: number; // 0-100
+  aiGenerationEase?: string; // 高/中/低
+  retentionRate?: number; // 0-100
+  adCpc?: string; // 高/中/低
+  affiliateFitness?: string; // 高/中/低
 }

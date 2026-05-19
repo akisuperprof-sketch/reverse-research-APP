@@ -3,11 +3,12 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
 
 const SYSTEM_PROMPT = `
-あなたは、検索意図から売れるマイクロアプリを企画・量産する「reverse research」のチーフAI分析官であり、人間の心理と市場ニーズを読み解く天才プロファイラーです。
+あなたは、検索意図から売れる単機能マイクロアプリを企画・量産する「reverse research」のチーフAI分析官であり、人間の心理・行動・課金欲求を読み解く天才プロファイラーです。
 ユーザーが入力したキーワードの背後にある「不安・焦り・怒り・孤独・比較心理・購入直前感」などの感情を深く解析し、以下のJSONフォーマットで回答してください。
 
 ## 分析の目的
-「表面的な検索意図」ではなく「次に続く検索」「悩みの本質」「求められるアプリ」「動画企画」「競合との差分」「MVP仕様書」までを一気通貫で提示し、実用的に「今すぐ作るべきか」の判断を可能にすること。
+表面的な関連語の提示を超え、「人間の悩み → 行動 → 課金」という一連のライフサイクルに特化し、「時系列の次検索予測」「ユーザーが本当に欲しい最小機能の特定」「心理的な競合ギャップ」「SNS動画フックの視聴維持率予測」「アフィリエイト・広告等の実行判断」までを自動生成・特定すること。
+AI OS風の演出よりも、売れるアプリを決めるための『極めて精緻な企画立案データ値』の算出を最優先してください。
 
 ## 重要：セキュリティ・安全性・利用規約上の制約 (絶対に遵守してください)
 特にSNS、LINE、Instagram、TikTok、メルカリなどのプラットフォームに関連する提案を行う場合：
@@ -65,27 +66,37 @@ const SYSTEM_PROMPT = `
   ],
   "risks": ["リスク1", "リスク2"],
   "oneFeatureRecommendation": "たった一つのコア機能",
-  "searchGapSummary": "検索結果 of 隙間の要約",
+  "searchGapSummary": "検索結果の隙間の要約",
 
   "nextSearchMap": [
     {
-      "keyword": "次に検索しそうな関連ワード",
-      "stage": "検索の心理段階",
+      "keyword": "時系列で次に検索する関連ワード",
+      "stage": "検索段階(未認知/問題認知/解決策探し/選択肢比較/今すぐ買う)",
       "emotion": "その時の感情",
       "intent": "検索の目的・知りたいこと",
-      "priority": 5,
-      "mvpPotential": 80
+      "priority": 1から5の優先数値,
+      "mvpPotential": 0から100のMVP化潜在率数値,
+      "psychology": "そのワードへ遷移した時の詳細な心理変化（例：理由を知りたい → 諦めきれない → 依存的手段への傾倒）",
+      "despairLevel": 0から100の絶望度数値,
+      "dependencyLevel": 0から100の執着・依存度数値,
+      "isPurchaseReady": trueまたはfalse(悩みが深まり課金直前フェーズに達しているか)
     }
   ],
   "wantedApp": {
-    "name": "本当に求められているアプリ名",
+    "name": "本当に求められている単機能アプリ名",
     "targetUser": "明確なターゲットユーザー層",
     "coreProblem": "解決するべき唯一かつ最大の悩み・問題",
-    "oneFeature": "最も重要なコアとなるたった1つの機能",
-    "doNotBuild": ["絶対に作ってはいけない機能やスコープ（複雑化や規約違反を防ぐため）"],
+    "oneFeature": "ユーザーが本当に欲しい唯一無二の最小機能",
+    "doNotBuild": ["絶対に作ってはいけない機能スコープ"],
     "difficulty": "低/中/高",
-    "estimatedDays": "必要な開発日数",
-    "winRate": 85
+    "estimatedDays": "開発日数",
+    "winRate": 0から100の勝率数値,
+    "whyWanted": "なぜそれが欲しいのかの根本的な行動心理",
+    "whyExistingFails": "なぜ既存の解決策（検索結果や競合アプリ）ではダメなのか（UI不信感や広告多すぎ、安心感の決定的な不足）",
+    "emotionTrigger": "ユーザーが利用を開始・熱狂する感情トリガー",
+    "monetizationReason": "なぜお金を払うのかの具体的な課金理由",
+    "firstDayScope": "初日に絶対に作るべき極小MVPの開発範囲・機能要件",
+    "absoluteCut": ["初日から容赦なく削り取るべき機能リスト"]
   },
   "mvpOneFeature": {
     "build": "MVPで唯一作るべき超具体的な1つの機能",
@@ -95,21 +106,33 @@ const SYSTEM_PROMPT = `
     "paidValue": "有料化・プレミアムプランで提供すべき具体的な価値"
   },
   "videoHooks": {
-    "tiktokTitles": ["TikTok/Reels向けクリックしたくなるタイトル案"],
-    "shortsTitles": ["YouTube Shorts向けタイトル案"],
-    "first3secHooks": ["視聴維持率を上げる冒頭3秒の強烈なフック言葉"],
+    "tiktokTitles": ["TikTok向けタイトル案(3本)"],
+    "shortsTitles": ["YouTube Shorts向けタイトル案(3本)"],
+    "first3secHooks": ["冒頭3秒の強烈なフック言葉(3パターン)"],
     "fifteenSecStructure": "15秒版の起承転結・構成案",
     "thirtySecStructure": "30秒版の起承転結・構成案",
-    "cta": "動画の最後で誘導する強力な行動喚起(CTA)文句",
-    "riskNotes": "不安の過剰な煽りや炎上を防ぐためのリスク注意点・健全な啓発方針"
+    "cta": "強力な行動喚起(CTA)文句",
+    "riskNotes": "不安の過剰な煽りや炎上を防ぐためのリスク注意点・健全な啓発方針",
+    "bestOpener": "最強の冒頭一言セリフ",
+    "flameRate": 0から100のコメント炎上率予想数値,
+    "saveRatePrediction": 0から100の保存率予想数値,
+    "emotionDirection": "ユーザーの誘導先感情（安心/共感/冷静化/恐怖など）",
+    "retentionPrediction": 0から100の平均視聴維持率予想数値,
+    "genderMode": "female / male / unisex",
+    "clickbaitRisk": 0から100の煽り危険度・シャドウバンリスク数値
   },
   "competitorGap": {
-    "competitors": ["想定される実際の既存の競合記事やアプリ、知恵袋など"],
-    "weaknesses": ["既存の競合の最大の弱点・不満点（広告が多すぎる、解決しないなど）"],
+    "competitors": ["想定される競合"],
+    "weaknesses": ["競合の最大の弱点"],
     "trustGap": "競合が満たせていない「信頼性の欠如」をどう埋めるか",
     "uiGap": "競合の「UIの古さや操作の面倒さ」に対してどう差別化するか",
     "contentGap": "既存情報の内容の薄さに対してどう圧倒するか",
-    "winningAngle": "今回のMVPが競合に100%勝利するためのポジショニング・切り口"
+    "winningAngle": "今回のMVPが競合に100%勝利するためのポジショニング・切り口",
+    "emotionFrustration": "既存競合が引き起こしているユーザーの感情的ストレス・イライラ",
+    "uiDistrust": "既存サイトのUIから感じる不信感・怪しさの具体内容（例：フィッシングっぽい、ログイン強要など）",
+    "adAnnoyance": "既存情報の広告のうざさ、邪魔さのレベルの記述",
+    "infoFatigue": "情報過多によるユーザーの疲れ、混乱ポイント",
+    "trustShortage": "既存の解決手段において決定的に不足している『安心感』の要素"
   },
   "appSpecPreview": {
     "purpose": "アプリの明確な開発目的",
@@ -122,10 +145,16 @@ const SYSTEM_PROMPT = `
     "testItems": ["仕様を満たしているか確認するためのテスト項目"]
   },
   "decision": {
-    "status": "今すぐ作る / 小さく検証 / 保留 / 捨てる",
+    "status": "今すぐ作る / 小規模検証 / 広告だけ / 動画だけ / 捨てる",
     "score": 85,
-    "reasons": ["判断に至った具体的な理由（Painの強さ、規約リスク、開発容易性、拡散性など）"],
-    "nextAction": "次に実行するべき具体的なファーストステップ"
+    "reasons": ["判断に至った具体的な理由"],
+    "nextAction": "次に実行するべき具体的なファーストステップ",
+    "revenueSpeed": "高 / 中 / 低",
+    "snsVirality": 0から100のSNS拡散性スコア数値,
+    "aiGenerationEase": "高 / 中 / 低",
+    "retentionRate": 0から100の推定継続率数値,
+    "adCpc": "高 / 中 / 低",
+    "affiliateFitness": "高 / 中 / 低"
   }
 }
 
@@ -174,7 +203,11 @@ function generateMockData(keyword: string) {
         emotion: "不安",
         intent: "安全な代替案を知りたい",
         priority: 4,
-        mvpPotential: 75
+        mvpPotential: 75,
+        psychology: "安心したい心理へのシフト",
+        despairLevel: 45,
+        dependencyLevel: 60,
+        isPurchaseReady: false
       }
     ],
     wantedApp: {
@@ -185,7 +218,13 @@ function generateMockData(keyword: string) {
       doNotBuild: ["個人アカウントのハック", "利用規約に反する直接判定"],
       difficulty: "低",
       estimatedDays: "2日",
-      winRate: 80
+      winRate: 80,
+      whyWanted: "自己解決できない漠然とした不安を客観的に可視化・沈静化させたいから",
+      whyExistingFails: "既存サイトはアフィリエイト広告や怪しいツールへの登録強要が多いため",
+      emotionTrigger: "「匿名で3秒で現状の心のモヤモヤが晴れる」という即時安心感",
+      monetizationReason: "安心感の強化として専門的な対話スクリプトや冷徹な可能性スコアのPDF出力",
+      firstDayScope: "3つの質問のステップと冷徹な診断ロジックだけの静的SPA",
+      absoluteCut: ["ユーザー登録", "サーバー連携", "リアルタイムAPI接続"]
     },
     mvpOneFeature: {
       build: "3クリックで簡易診断できるジェネレーター",
@@ -201,7 +240,14 @@ function generateMockData(keyword: string) {
       fifteenSecStructure: "起: 不安の共感 → 承: 誤解の原因 → 転: 簡単なチェック方法 → 結: 診断ナビへ",
       thirtySecStructure: "起: 深夜のモヤモヤ解決 → 承: 既存のやり方は規約違反が多い危険 → 転: 安全に自分の心を整理する方法がある → 結: 診断ツールへの誘導",
       cta: "プロフィールのリンクから30秒でできる安全診断ナビを使ってみて！",
-      riskNotes: "不安を過剰に煽らず、法的に安全で健全な方法を推奨するクリーンなブランディングを行う"
+      riskNotes: "不安を過剰に煽らず、法的に安全で健全な方法を推奨するクリーンなブランディングを行う",
+      bestOpener: "「既読無視するあの人、ブロックされたか調べる安全な方法知ってる？」",
+      flameRate: 15,
+      saveRatePrediction: 72,
+      emotionDirection: "安心と自己省察",
+      retentionPrediction: 65,
+      genderMode: "unisex",
+      clickbaitRisk: 25
     },
     competitorGap: {
       competitors: ["既存のフィッシング紛いの検証アプリ", "広告だらけの解説記事"],
@@ -209,7 +255,12 @@ function generateMockData(keyword: string) {
       trustGap: "一切のログイン不要、完全匿名でユーザー自身の入力情報だけを整理して安心感を提供する",
       uiGap: "極限まで要素を削ぎ落としたスタイリッシュでクリーンなApple風1カラムUI",
       contentGap: "単なる解説ではなく、対話形式で今やるべき具体的なアクションプランをPDF化して持ち帰れる",
-      winningAngle: "「判定する」のではなく「ユーザー自身の心を整理する」という健全・安全なポジショニング"
+      winningAngle: "「判定する」のではなく「ユーザー自身の心を整理する」という健全・安全なポジショニング",
+      emotionFrustration: "判定できずに個人情報だけ抜かれるかもしれないという怪しさ・ストレス",
+      uiDistrust: "古臭いフォント、点滅する広告、ログイン強要から感じる危険な雰囲気",
+      adAnnoyance: "「判定はこちら」と騙されて無駄なアフィリンクやアダルト広告を何度も踏まされる嫌悪感",
+      infoFatigue: "長々としたSEO対策の引き伸ばし文章が多く、結局どうすればいいか一言でわからない混乱",
+      trustShortage: "怪しいログイン認証をせずに、100%ローカル（端末内）で完結する安全設計の絶対的不足"
     },
     appSpecPreview: {
       purpose: "LINE等のコミュニケーション上の不安を客観的に整理し、健全な解決ステップを支援する",
@@ -225,7 +276,13 @@ function generateMockData(keyword: string) {
       status: "小さく検証",
       score: 85,
       reasons: ["Painは深夜帯に極めて深い", "既存の競合は広告過多でUXが崩壊している", "完全匿名＆クライアント完結型のため規約リスクが完全にゼロで構築可能"],
-      nextAction: "診断シミュレータのMVP画面（3ステップのモックアップ）を作成し、拡散動画の企画を進める"
+      nextAction: "診断シミュレータのMVP画面（3ステップのモックアップ）を作成し、拡散動画の企画を進める",
+      revenueSpeed: "中",
+      snsVirality: 85,
+      aiGenerationEase: "高",
+      retentionRate: 40,
+      adCpc: "中",
+      affiliateFitness: "高"
     }
   };
 }
@@ -275,6 +332,7 @@ export async function POST(req: Request) {
     }
 
     // データバリデーション & 補完
+    const fallback = generateMockData(keyword);
     const safeData = {
       relatedKeywords: Array.isArray(analysisData.relatedKeywords) ? analysisData.relatedKeywords : [],
       intentStages: analysisData.intentStages || { "未認知": 20, "問題認知": 20, "解決策探し": 20, "選択肢比較": 20, "今すぐ買う": 20 },
@@ -304,21 +362,67 @@ export async function POST(req: Request) {
       oneFeatureRecommendation: analysisData.oneFeatureRecommendation || "機能の絞り込み",
       searchGapSummary: analysisData.searchGapSummary || "調査中",
 
-      // 新設Core Value属性 (安全にフォールバック)
-      nextSearchMap: Array.isArray(analysisData.nextSearchMap) ? analysisData.nextSearchMap : generateMockData(keyword).nextSearchMap,
-      wantedApp: analysisData.wantedApp || generateMockData(keyword).wantedApp,
-      mvpOneFeature: analysisData.mvpOneFeature || generateMockData(keyword).mvpOneFeature,
-      videoHooks: analysisData.videoHooks || generateMockData(keyword).videoHooks,
-      competitorGap: analysisData.competitorGap || generateMockData(keyword).competitorGap,
-      appSpecPreview: analysisData.appSpecPreview || generateMockData(keyword).appSpecPreview,
-      decision: analysisData.decision || generateMockData(keyword).decision
+      // 新設Core Value属性 ＆ 拡張心理学属性 (安全にフォールバック)
+      nextSearchMap: (Array.isArray(analysisData.nextSearchMap) ? analysisData.nextSearchMap : fallback.nextSearchMap).map((item: any, i: number) => {
+        const itemFallback = fallback.nextSearchMap[i] || fallback.nextSearchMap[0];
+        return {
+          keyword: item.keyword || itemFallback.keyword,
+          stage: item.stage || itemFallback.stage,
+          emotion: item.emotion || itemFallback.emotion,
+          intent: item.intent || itemFallback.intent,
+          priority: item.priority || itemFallback.priority,
+          mvpPotential: item.mvpPotential || itemFallback.mvpPotential,
+          psychology: item.psychology || itemFallback.psychology,
+          despairLevel: item.despairLevel !== undefined ? item.despairLevel : itemFallback.despairLevel,
+          dependencyLevel: item.dependencyLevel !== undefined ? item.dependencyLevel : itemFallback.dependencyLevel,
+          isPurchaseReady: item.isPurchaseReady !== undefined ? item.isPurchaseReady : itemFallback.isPurchaseReady,
+        };
+      }),
+      wantedApp: {
+        ...(analysisData.wantedApp || fallback.wantedApp),
+        whyWanted: analysisData.wantedApp?.whyWanted || fallback.wantedApp.whyWanted,
+        whyExistingFails: analysisData.wantedApp?.whyExistingFails || fallback.wantedApp.whyExistingFails,
+        emotionTrigger: analysisData.wantedApp?.emotionTrigger || fallback.wantedApp.emotionTrigger,
+        monetizationReason: analysisData.wantedApp?.monetizationReason || fallback.wantedApp.monetizationReason,
+        firstDayScope: analysisData.wantedApp?.firstDayScope || fallback.wantedApp.firstDayScope,
+        absoluteCut: analysisData.wantedApp?.absoluteCut || fallback.wantedApp.absoluteCut
+      },
+      mvpOneFeature: analysisData.mvpOneFeature || fallback.mvpOneFeature,
+      videoHooks: {
+        ...(analysisData.videoHooks || fallback.videoHooks),
+        bestOpener: analysisData.videoHooks?.bestOpener || fallback.videoHooks.bestOpener,
+        flameRate: analysisData.videoHooks?.flameRate !== undefined ? analysisData.videoHooks.flameRate : fallback.videoHooks.flameRate,
+        saveRatePrediction: analysisData.videoHooks?.saveRatePrediction !== undefined ? analysisData.videoHooks.saveRatePrediction : fallback.videoHooks.saveRatePrediction,
+        emotionDirection: analysisData.videoHooks?.emotionDirection || fallback.videoHooks.emotionDirection,
+        retentionPrediction: analysisData.videoHooks?.retentionPrediction !== undefined ? analysisData.videoHooks.retentionPrediction : fallback.videoHooks.retentionPrediction,
+        genderMode: analysisData.videoHooks?.genderMode || fallback.videoHooks.genderMode,
+        clickbaitRisk: analysisData.videoHooks?.clickbaitRisk !== undefined ? analysisData.videoHooks.clickbaitRisk : fallback.videoHooks.clickbaitRisk
+      },
+      competitorGap: {
+        ...(analysisData.competitorGap || fallback.competitorGap),
+        emotionFrustration: analysisData.competitorGap?.emotionFrustration || fallback.competitorGap.emotionFrustration,
+        uiDistrust: analysisData.competitorGap?.uiDistrust || fallback.competitorGap.uiDistrust,
+        adAnnoyance: analysisData.competitorGap?.adAnnoyance || fallback.competitorGap.adAnnoyance,
+        infoFatigue: analysisData.competitorGap?.infoFatigue || fallback.competitorGap.infoFatigue,
+        trustShortage: analysisData.competitorGap?.trustShortage || fallback.competitorGap.trustShortage
+      },
+      appSpecPreview: analysisData.appSpecPreview || fallback.appSpecPreview,
+      decision: {
+        ...(analysisData.decision || fallback.decision),
+        revenueSpeed: analysisData.decision?.revenueSpeed || fallback.decision.revenueSpeed,
+        snsVirality: analysisData.decision?.snsVirality !== undefined ? analysisData.decision.snsVirality : fallback.decision.snsVirality,
+        aiGenerationEase: analysisData.decision?.aiGenerationEase || fallback.decision.aiGenerationEase,
+        retentionRate: analysisData.decision?.retentionRate !== undefined ? analysisData.decision.retentionRate : fallback.decision.retentionRate,
+        adCpc: analysisData.decision?.adCpc || fallback.decision.adCpc,
+        affiliateFitness: analysisData.decision?.affiliateFitness || fallback.decision.affiliateFitness
+      }
     };
 
     if (safeData.appIdeas.length === 0) {
       safeData.appIdeas.push(generateMockData(keyword).appIdeas[0]);
     }
 
-    // Supabaseに保存 (JSONB emotion_data 内部にすべて入れ込むことでスキーマ後方互換を完全維持)
+    // Supabaseに保存 (JSONB emotion_data 内部にすべて入れ込むことでスキーマ互換性を完全維持)
     let queryId: string | undefined;
     let supabaseStatus = "success";
     try {
@@ -338,6 +442,7 @@ export async function POST(req: Request) {
             futureSearches: safeData.futureSearches,
             painReason: safeData.painReason,
             opportunityReason: safeData.opportunityReason,
+            
             // 新設項目をemotion_dataの中にラップ
             nextSearchMap: safeData.nextSearchMap,
             wantedApp: safeData.wantedApp,
